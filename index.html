@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TripFlow V3 · Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06080c;--sf:#0a0e16;--pn:#0e1420;--rs:#121a2a;--s3:#182238;--bd:rgba(255,255,255,.06);--bh:rgba(255,255,255,.10);--gl:rgba(255,255,255,.03);--tx:#e8ecf2;--t2:#b0b8c8;--t3:#7a8598;--t4:#4a5568;--t5:#2d3748;--am:#f0a030;--amG:rgba(240,160,48,.06);--amB:rgba(240,160,48,.15);--bl:#4a9eff;--blG:rgba(74,158,255,.06);--gr:#3dd68c;--grG:rgba(61,214,140,.06);--pu:#9070f0;--puG:rgba(144,112,240,.06);--rd:#f06060;--rdG:rgba(240,96,96,.06);--cy:#20c4e0;--cyG:rgba(32,196,224,.06);--pk:#e060a0;--yl:#e0c040;--ylG:rgba(224,192,64,.06);--r:8px;--r2:12px;--font:'Instrument Sans','Noto Sans SC',system-ui,sans-serif;--serif:'Newsreader','Noto Sans SC',Georgia,serif;--mono:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--tx);font-family:var(--font);font-size:13px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--t5);border-radius:2px}
+button{font-family:var(--font);cursor:pointer;border:none;background:none;color:inherit}input,textarea{font-family:var(--font);color:var(--tx);background:none;border:none;outline:none}
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* ═══ SIDEBAR ═══ */
+.sb{width:248px;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0}
+.sb-brand{padding:14px 16px 10px;display:flex;align-items:center;gap:8px}
+.sb-logo{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#f0a030,#e06830);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#000}
+.sb-tit{font-size:13px;font-weight:700}.sb-tit b{color:var(--am)}
+.sb-proj{margin:0 10px 8px;padding:7px 10px;border-radius:var(--r);background:var(--amG);border:1px solid var(--amB);display:flex;align-items:center;gap:7px;cursor:pointer;transition:.15s}.sb-proj:hover{background:rgba(240,160,48,.1)}
+.sb-pn{font-size:11px;font-weight:700;color:var(--am)}.sb-pm{font-size:9px;color:var(--t4)}
+.sb-nav{padding:0 8px;margin-bottom:4px}
+.ni{width:100%;display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--r);font-size:11.5px;font-weight:500;color:var(--t3);transition:.12s;margin-bottom:1px;position:relative}.ni:hover{background:var(--gl);color:var(--t2)}.ni.a{background:var(--amG);color:var(--am);font-weight:600}
+.ni .ic{width:18px;text-align:center;font-size:12px;flex-shrink:0}.ni .ct{margin-left:auto;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:600;color:var(--t5);background:var(--pn)}.ni.a .ct{color:var(--am);background:var(--amB)}
+.sb-div{height:1px;background:var(--bd);margin:6px 12px}
+.fs{flex:1;overflow-y:auto;padding:0 8px 8px}
+.fs-h{display:flex;align-items:center;padding:5px 10px;font-size:9.5px;font-weight:700;color:var(--t5);letter-spacing:1px;text-transform:uppercase}.fs-h span{margin-left:auto;font-size:10px;cursor:pointer;color:var(--t5)}.fs-h span:hover{color:var(--t3)}
+.fe{display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;transition:.1s;color:var(--t2);margin-bottom:1px}.fe:hover{background:var(--gl)}.fe.act{background:var(--blG);color:var(--bl)}
+.fe .fi{font-size:10px;width:16px;text-align:center;flex-shrink:0;color:var(--t4)}.fe.act .fi{color:var(--bl)}.fe .fn{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fe .fx{font-family:var(--mono);font-size:8.5px;color:var(--t5)}
+.fd-r{display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:600;color:var(--t3);cursor:pointer;transition:.1s}.fd-r:hover{background:var(--gl);color:var(--t2)}
+.fd-r .ar{font-size:7px;width:10px;text-align:center;color:var(--t5);transition:.15s;flex-shrink:0}.fd-r.op .ar{transform:rotate(90deg)}
+.fd-r .ct{margin-left:auto;font-size:8.5px;color:var(--t5)}
+.fd-k{padding-left:16px;border-left:1px solid var(--bd);margin-left:16px;overflow:hidden}
+.pref-row{display:flex;align-items:center;gap:5px;padding:3px 8px;font-size:10px;color:var(--t3)}.pref-row .dot{width:4px;height:4px;border-radius:50%;flex-shrink:0}.pref-row .val{margin-left:auto;font-size:9px;font-weight:600}
+.sb-bot{padding:8px 10px;border-top:1px solid var(--bd)}
+.sb-mode{display:flex;border-radius:var(--r);background:var(--bg);padding:2px;gap:2px}
+.mb{flex:1;padding:5px;border-radius:6px;font-size:10px;font-weight:600;text-align:center;transition:.15s;color:var(--t4)}
+.mb.aa{background:var(--blG);color:var(--bl)}.mb.ab{background:var(--amG);color:var(--am)}
+
+/* ═══ CENTER ═══ */
+.center{flex:1;display:flex;flex-direction:column;min-width:0}
+.top{height:42px;display:flex;align-items:center;padding:0 14px;border-bottom:1px solid var(--bd);background:var(--sf);gap:8px;flex-shrink:0}
+.tb-st{margin-left:auto;font-size:10px;display:flex;align-items:center;gap:5px;color:var(--t4)}
+.tb-dot{width:5px;height:5px;border-radius:50%}
+.page-wrap{flex:1;overflow:hidden;position:relative}
+.pg{position:absolute;inset:0;display:none;overflow:hidden}.pg.show{display:flex}
+
+/* Chat */
+.cc{display:flex;flex-direction:column;overflow:hidden;transition:width .2s}.cc.full{width:100%}.cc.split{width:360px;flex-shrink:0;border-right:1px solid var(--bd)}
+.cs{flex:1;overflow-y:auto;padding:14px}
+.ce{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:30px}
+.ce-i{font-size:32px;opacity:.1;margin-bottom:10px}.ce-t{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:3px}.ce-d{font-size:11px;color:var(--t4);line-height:1.6;max-width:300px}
+.qw{display:flex;flex-wrap:wrap;gap:5px;margin-top:14px;justify-content:center;max-width:380px}
+.qk{padding:5px 11px;border-radius:7px;border:1px solid var(--bd);font-size:10.5px;color:var(--t3);background:var(--sf);transition:.12s}.qk:hover{border-color:var(--bh);color:var(--t2)}
+.msg{margin-bottom:10px;animation:fu .25s}
+.mu{display:flex;justify-content:flex-end}.mu .b{background:linear-gradient(135deg,rgba(240,160,48,.06),rgba(240,160,48,.02));border:1px solid var(--amB);border-radius:var(--r2) var(--r2) 3px var(--r2);padding:8px 12px;max-width:88%;font-size:12px;line-height:1.6}
+.ma{display:flex;gap:7px;align-items:flex-start}.ma .av{width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,var(--am),#e06830);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:2px}.ma .b{background:var(--pn);border:1px solid var(--bd);border-radius:3px var(--r2) var(--r2) var(--r2);padding:8px 12px;max-width:88%;font-size:12px;line-height:1.7}
+.afc{background:linear-gradient(135deg,rgba(144,112,240,.03),rgba(74,158,255,.02));border:1px solid rgba(144,112,240,.1);border-radius:var(--r2);padding:10px 12px;margin:6px 0}
+.afc-t{font-size:9.5px;font-weight:700;color:var(--pu);margin-bottom:5px}.afr{display:flex;align-items:center;gap:5px;padding:2px 0;font-size:10.5px}.aft{font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:var(--puG);color:var(--pu)}.afs{font-size:8px;color:var(--t5);margin-left:3px}
+.exp{margin:6px 0;border-radius:var(--r2);overflow:hidden;border:1px solid var(--bd)}.exh{padding:7px 10px;background:var(--pn);font-size:9.5px;font-weight:700;color:var(--t4)}.exs{padding:4px 6px}
+.es{display:flex;align-items:center;gap:7px;padding:3px 5px;border-radius:5px;font-size:10.5px}.es:hover{background:var(--gl)}.esd{width:14px;height:14px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0}.es.dn .esd{background:var(--grG);color:var(--gr)}.es.rn .esd{background:var(--amG);color:var(--am);animation:pu 1s infinite}.es.wt .esd{background:var(--gl);color:var(--t5)}.es.pa .esd{background:var(--ylG);color:var(--yl)}.esn{flex:1;font-weight:500;color:var(--t2)}.es.wt .esn{color:var(--t5)}.esm{font-size:8.5px;color:var(--t4)}
+.ivc{background:linear-gradient(135deg,rgba(224,192,64,.02),transparent);border:1.5px solid rgba(224,192,64,.1);border-radius:var(--r2);padding:10px;margin:6px 0}.ivt{font-size:9.5px;font-weight:700;color:var(--yl);margin-bottom:5px}
+.ivo{padding:5px 8px;border-radius:7px;background:var(--sf);border:1px solid var(--bd);font-size:10.5px;margin:2px 0;cursor:pointer;display:flex;align-items:center;gap:5px;transition:.12s}.ivo:hover{border-color:var(--bh)}.ivo.sel{border-color:var(--am);background:var(--amG);color:var(--am)}.ivo .sc{margin-left:auto;font-size:9px;color:var(--t4)}
+.ci{padding:10px 14px;border-top:1px solid var(--bd);background:var(--sf)}
+.iw{display:flex;gap:7px;align-items:flex-end;background:var(--pn);border:1px solid var(--bd);border-radius:var(--r2);padding:7px 9px;transition:.2s}.iw:focus-within{border-color:rgba(240,160,48,.25)}
+.iw textarea{flex:1;resize:none;font-size:11.5px;line-height:1.5;min-height:20px;max-height:72px}.iw textarea::placeholder{color:var(--t5)}
+.snd{width:30px;height:30px;border-radius:7px;background:var(--am);display:flex;align-items:center;justify-content:center;font-size:11px;color:#000;font-weight:800;flex-shrink:0;transition:.12s}.snd:hover{background:#e09020}
+
+/* Canvas */
+.cv{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--bg)}
+.cvt{display:flex;gap:1px;padding:8px 16px;background:var(--sf);border-bottom:1px solid var(--bd)}
+.ct{padding:4px 12px;border-radius:6px;font-size:10.5px;font-weight:600;color:var(--t4);transition:.12s}.ct:hover{color:var(--t3)}.ct.a{color:var(--tx);background:var(--pn)}
+.cvb{flex:1;overflow-y:auto;padding:14px 18px}
+.cvf{padding:8px 18px;border-top:1px solid var(--bd);display:flex;gap:6px;align-items:center;background:var(--sf)}
+.bp{padding:5px 14px;border-radius:7px;background:var(--gr);color:#000;font-size:10.5px;font-weight:700;transition:.12s}.bp:hover{background:#30c480}
+.bg2{padding:5px 12px;border-radius:7px;border:1px solid var(--bd);font-size:10.5px;font-weight:600;color:var(--t3);transition:.12s}.bg2:hover{border-color:var(--bh);color:var(--tx)}
+.f1{flex:1}
+
+/* Segs */
+.sg{border-radius:var(--r2);margin-bottom:8px;overflow:hidden;border:1px solid var(--bd);background:var(--sf);transition:.15s}.sg:hover{border-color:var(--bh)}
+.sgh{display:flex;align-items:center;padding:7px 10px;background:var(--pn);gap:6px}.sgc{width:3px;height:18px;border-radius:1px;flex-shrink:0}.sgtp{font-size:10.5px;font-weight:700;flex:1}.sgtm{font-size:9px;color:var(--t5)}.sgrg{padding:2px 7px;border-radius:4px;font-size:9px;color:var(--t5);border:1px solid var(--bd);opacity:0;transition:.12s}.sg:hover .sgrg{opacity:1}.sgrg:hover{color:var(--am);border-color:var(--amB)}
+.sgb{padding:10px 12px;font-family:var(--serif);font-size:14px;line-height:2;min-height:36px;outline:none}
+.sgr{padding:3px 10px 7px;display:flex;gap:3px;flex-wrap:wrap}
+.rf{font-size:8px;font-weight:600;padding:2px 5px;border-radius:3px;cursor:pointer}.rfc{background:var(--cyG);color:var(--cy);border:1px solid rgba(32,196,224,.1)}.rfh{background:var(--amG);color:var(--am);border:1px solid var(--amB)}
+.scp{border-radius:var(--r2);border:1px solid var(--bd);padding:12px;background:linear-gradient(135deg,var(--sf),var(--pn));margin-top:6px}.sct{display:flex;align-items:center;gap:10px;margin-bottom:8px}.scn{font-size:28px;font-weight:900;color:var(--am)}.scg{font-size:11px;font-weight:800;color:var(--gr);background:var(--grG);padding:2px 7px;border-radius:4px}.sci{font-size:9px;color:var(--t4);margin-left:auto}
+.scd{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}.dm{text-align:center;padding:5px;border-radius:7px;background:var(--bg)}.dmv{font-size:14px;font-weight:800}.dml{font-size:7.5px;color:var(--t4);margin-top:1px}.dmb{height:2px;border-radius:1px;background:var(--t5);margin-top:3px;overflow:hidden}.dmf{height:100%;border-radius:1px;transition:width .6s}
+
+/* Dashboard in canvas */
+.dg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}.dc{padding:12px;border-radius:var(--r2);background:var(--sf);border:1px solid var(--bd);text-align:center}.dv{font-size:22px;font-weight:800}.dl{font-size:9px;color:var(--t4);margin-top:2px}.dd{font-size:9px;font-weight:600;color:var(--gr);margin-top:1px}
+.cc2{padding:12px;border-radius:var(--r2);background:var(--sf);border:1px solid var(--bd);margin-bottom:10px}.cct{font-size:11px;font-weight:700;margin-bottom:8px}
+.br{display:flex;align-items:center;gap:6px;margin-bottom:6px}.bl2{font-size:10px;color:var(--t3);width:80px;flex-shrink:0}.bt{flex:1;height:5px;border-radius:3px;background:var(--pn);overflow:hidden}.bf{height:100%;border-radius:3px;transition:width .8s}.bv{font-size:10px;font-weight:700;width:36px;text-align:right;flex-shrink:0}
+.ic2{padding:8px 10px;border-radius:var(--r);background:var(--pn);border:1px solid var(--bd);margin-bottom:4px;display:flex;align-items:flex-start;gap:8px}.id2{font-size:14px;font-weight:900;min-width:42px;flex-shrink:0}.it2{font-size:10.5px;color:var(--t2);line-height:1.5;flex:1}
+
+/* Storyboard */
+.sbs{display:flex;flex-direction:column;gap:8px}
+.shot{display:flex;gap:10px;padding:10px;border-radius:var(--r2);background:var(--sf);border:1px solid var(--bd);transition:.15s}.shot:hover{border-color:var(--bh)}
+.sth{width:100px;height:56px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;position:relative;overflow:hidden}.sth::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.4))}.sth .dur{position:absolute;bottom:3px;right:4px;font-size:8px;font-weight:700;color:#fff;z-index:1}
+.sti{flex:1;min-width:0}.stl{font-size:10.5px;font-weight:700;margin-bottom:2px;display:flex;align-items:center;gap:4px}.stl .tag{font-size:8px;padding:1px 4px;border-radius:3px;font-weight:600}.std{font-size:10px;color:var(--t3);line-height:1.4}.sts{font-size:10px;color:var(--t2);margin-top:3px;font-family:var(--serif);line-height:1.5;font-style:italic}
+
+/* ═══ RIGHT PANEL ═══ */
+.rp{width:268px;border-left:1px solid var(--bd);display:flex;flex-direction:column;background:var(--sf);flex-shrink:0}
+.rph{padding:9px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:5px}.rpht{font-size:12px;font-weight:700;flex:1}.rphc{font-size:9px;color:var(--am);background:var(--amG);padding:1px 5px;border-radius:3px;font-weight:600}
+.sa{margin:8px;border-radius:var(--r);padding:8px;border:1.5px dashed var(--bd);transition:.15s}.sa.has{border-color:var(--amB);background:var(--amG)}
+.sah{display:flex;align-items:center;gap:4px;margin-bottom:3px}.sal{font-size:10px;font-weight:700;color:var(--t3);flex:1}.sa.has .sal{color:var(--am)}.sac{font-size:9px;color:var(--t5)}
+.si2{display:flex;align-items:center;gap:4px;padding:3px 5px;border-radius:5px;background:var(--sf);border:1px solid var(--bd);margin:2px 0;font-size:9.5px}.si2 .rm{margin-left:auto;color:var(--t5);font-size:9px;cursor:pointer}.si2 .rm:hover{color:var(--rd)}
+.sab{display:flex;gap:4px;margin-top:5px}
+.sinj{flex:1;padding:4px;border-radius:6px;background:var(--am);color:#000;font-size:9.5px;font-weight:700;transition:.12s}.sinj:hover{background:#e09020}
+.sai{padding:4px 8px;border-radius:6px;border:1px solid var(--amB);color:var(--am);font-size:9.5px;font-weight:600;transition:.12s}.sai:hover{background:var(--amG)}
+.lt2{display:flex;flex-wrap:wrap;gap:2px;padding:6px 8px 3px;border-bottom:1px solid var(--bd)}
+.lb{padding:3px 5px;border-radius:4px;font-size:8.5px;font-weight:600;color:var(--t4);transition:.1s}.lb:hover{color:var(--t3);background:var(--gl)}.lb.a{color:var(--am);background:var(--amG)}
+.lsc{flex:1;overflow-y:auto;padding:6px 8px}
+.lss{width:100%;padding:5px 7px;border-radius:5px;background:var(--bg);border:1px solid var(--bd);font-size:10px;margin-bottom:5px;transition:.12s}.lss:focus{border-color:rgba(74,158,255,.25)}.lss::placeholder{color:var(--t5)}
+.kc{padding:7px;border-radius:7px;background:var(--pn);border:1px solid var(--bd);margin-bottom:3px;cursor:pointer;transition:.12s;font-size:10px}.kc:hover{border-color:var(--bh);background:var(--rs)}.kc.sel{border-color:var(--amB);background:var(--amG)}
+.kct{display:flex;align-items:flex-start;gap:3px}.kcx{flex:1;line-height:1.45;color:var(--t2)}.kca{width:16px;height:16px;border-radius:3px;border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;color:var(--t5);transition:.1s}.kca:hover{border-color:var(--am);color:var(--am)}.kc.sel .kca{background:var(--am);color:#000;border-color:var(--am)}
+.kcm{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;font-size:8px;color:var(--t5)}
+.badge{display:inline-block;padding:0 3px;border-radius:2px;font-size:7.5px;font-weight:700}.ba{background:var(--grG);color:var(--gr)}.bb{background:var(--ylG);color:var(--yl)}.brd{background:var(--rdG);color:var(--rd)}.bo{background:var(--amG);color:var(--am)}
+
+/* Viral page */
+.vp{display:flex;flex-direction:column;height:100%;overflow:hidden}.vh{padding:14px 18px;border-bottom:1px solid var(--bd);background:var(--sf);display:flex;align-items:center;gap:10px}.vht{font-size:14px;font-weight:800;flex:1}.vb{flex:1;overflow-y:auto;padding:14px 18px}
+.vg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.vc{border-radius:var(--r2);background:var(--sf);border:1px solid var(--bd);overflow:hidden;transition:.15s;cursor:pointer}.vc:hover{border-color:var(--bh);transform:translateY(-2px)}
+.vtb{height:100px;display:flex;align-items:center;justify-content:center;font-size:32px;position:relative}.vtb::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.5))}
+.vsc{position:absolute;top:8px;right:8px;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:900;z-index:1}.vpl{position:absolute;bottom:6px;left:8px;font-size:9px;font-weight:600;color:#fff;z-index:1}
+.vbd{padding:10px}.vnm{font-size:11px;font-weight:600;margin-bottom:3px;line-height:1.4}.vmeta{font-size:9px;color:var(--t4);line-height:1.5;margin-bottom:5px}
+.vtags{display:flex;gap:3px;flex-wrap:wrap}.vtg{font-size:8px;padding:1px 5px;border-radius:3px;font-weight:600}
+.vacts{display:flex;gap:4px;margin-top:6px}.vact{flex:1;padding:4px;border-radius:5px;font-size:9px;font-weight:600;text-align:center;transition:.12s}
+
+/* Data page */
+.dp{display:flex;flex-direction:column;height:100%;overflow:hidden}.dh{padding:14px 18px;border-bottom:1px solid var(--bd);background:var(--sf);display:flex;align-items:center;gap:10px}.dht{font-size:14px;font-weight:800;flex:1}.db{flex:1;overflow-y:auto;padding:14px 18px}
+
+.phP{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--t5)}.phI{font-size:40px;opacity:.15;margin-bottom:8px}.phT{font-size:13px}.phS{font-size:10px;color:var(--t5);margin-top:4px}
+.sk{background:linear-gradient(90deg,var(--pn) 25%,var(--rs) 50%,var(--pn) 75%);background-size:200% 100%;animation:sh 1.5s infinite;border-radius:3px;height:12px;margin:3px 0}
+.hd{display:none!important}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+</style></head><body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<div class="sb">
+<div class="sb-brand"><div class="sb-logo">TF</div><div class="sb-tit"><b>Trip</b>Flow</div></div>
+<div class="sb-proj"><span style="font-size:14px">🇬🇧</span><div style="flex:1"><div class="sb-pn">英国火车省钱系列</div><div class="sb-pm">英铁1组 · 5条脚本 · 3已发布</div></div><span style="font-size:8px;color:var(--t4)">▾</span></div>
+<div class="sb-nav">
+<button class="ni a" data-p="script" onclick="nav('script')"><span class="ic">✦</span>工作台</button>
+<button class="ni" data-p="viral" onclick="nav('viral')"><span class="ic">🔥</span>爆款库<span class="ct">892</span></button>
+<button class="ni" data-p="data" onclick="nav('data')"><span class="ic">📊</span>数据看板</button>
+<button class="ni" data-p="review" onclick="nav('review')"><span class="ic">✅</span>审核<span class="ct" style="color:var(--rd)">3</span></button>
+</div>
+<div class="sb-div"></div>
+<div class="fs">
+<div class="fs-h">📁 文档系统<span>＋</span></div>
+<div class="fe act"><span class="fi">📄</span><span class="fn">个人偏好</span><span class="fx">.md</span></div>
+<div><div class="fd-r op" onclick="this.classList.toggle('op');this.nextElementSibling.style.display=this.classList.contains('op')?'block':'none'"><span class="ar">▸</span><span class="fi" style="font-size:11px">📁</span>我的文档<span class="ct">12</span></div>
+<div class="fd-k"><div class="fe"><span class="fi">📝</span><span class="fn">英国火车攻略v3_终版</span><span class="fx">.md</span></div><div class="fe"><span class="fi">📝</span><span class="fn">Off-peak选题研究</span><span class="fx">.md</span></div><div class="fe"><span class="fi">📝</span><span class="fn">Split Ticket脚本草稿</span><span class="fx">.md</span></div><div class="fe"><span class="fi">📋</span><span class="fn">本周脚本排期</span><span class="fx">.md</span></div><div class="fe" style="color:var(--t5);font-size:10px"><span class="fi">···</span><span class="fn">其余8个文件</span></div></div></div>
+<div><div class="fd-r" onclick="this.classList.toggle('op');this.nextElementSibling.style.display=this.classList.contains('op')?'block':'none'"><span class="ar">▸</span><span class="fi" style="font-size:11px">📁</span>团队文档<span class="ct">28</span></div>
+<div class="fd-k" style="display:none"><div><div class="fd-r" onclick="this.classList.toggle('op');this.nextElementSibling.style.display=this.classList.contains('op')?'block':'none'"><span class="ar">▸</span><span class="fi" style="font-size:11px">📁</span>方法论<span class="ct">6</span></div><div class="fd-k" style="display:none"><div class="fe"><span class="fi">📄</span><span class="fn">脚本生产SOP</span><span class="fx">.md</span></div><div class="fe"><span class="fi">📄</span><span class="fn">爆款公式拆解</span><span class="fx">.md</span></div><div class="fe"><span class="fi">📄</span><span class="fn">五维评分标准</span><span class="fx">.md</span></div></div></div>
+<div><div class="fd-r" onclick="this.classList.toggle('op');this.nextElementSibling.style.display=this.classList.contains('op')?'block':'none'"><span class="ar">▸</span><span class="fi" style="font-size:11px">📁</span>合规规则<span class="ct">4</span></div><div class="fd-k" style="display:none"><div class="fe"><span class="fi">🛡️</span><span class="fn">敏感词库_v2.3</span><span class="fx">.md</span></div><div class="fe"><span class="fi">🛡️</span><span class="fn">平台审核规范</span><span class="fx">.md</span></div></div></div>
+<div class="fe"><span class="fi">📊</span><span class="fn">团队周报模板</span><span class="fx">.md</span></div></div></div>
+<div class="sb-div"></div>
+<div class="fs-h">🧠 个人偏好概览</div>
+<div style="padding:2px 8px"><div class="pref-row"><div class="dot" style="background:var(--am)"></div>钩子偏好<div class="val" style="color:var(--am)">否定常识 60%</div></div><div class="pref-row"><div class="dot" style="background:var(--bl)"></div>风格<div class="val" style="color:var(--t4)">活泼 · 口语化</div></div><div class="pref-row"><div class="dot" style="background:var(--gr)"></div>否定常识完播<div class="val" style="color:var(--gr)">+15%</div></div><div class="pref-row"><div class="dot" style="background:var(--rd)"></div>口语化不足<div class="val" style="color:var(--rd)">×8次</div></div><div class="pref-row"><div class="dot" style="background:var(--pu)"></div>习惯<div class="val" style="color:var(--t4)">3s钩子→5s</div></div></div>
+</div>
+<div class="sb-bot"><div class="sb-mode"><button class="mb aa" id="mA" onclick="setM('ask')">⚡ Ask</button><button class="mb" id="mB" onclick="setM('agent')">✦ Agent</button></div></div>
+</div>
+
+<!-- CENTER -->
+<div class="center">
+<div class="top"><div class="tb-st"><div class="tb-dot" id="sd" style="background:var(--t5)"></div><span id="st">等待指令</span></div></div>
+<div class="page-wrap">
+
+<!-- SCRIPT PAGE -->
+<div class="pg show" id="pg-script" style="flex-direction:row">
+<div class="cc full" id="cC">
+<div class="cs" id="cS"><div class="ce" id="cE"><div class="ce-i">✦</div><div class="ce-t">TripFlow Agent</div><div class="ce-d"><b style="color:var(--bl)">Ask⚡</b> 快速回答 · <b style="color:var(--am)">Agent✦</b> 完整Pipeline</div><div class="qw"><button class="qk" onclick="fi('帮我写一条英国火车省钱攻略60秒脚本')">✍️ 写脚本</button><button class="qk" onclick="fi('分析TikTok英国火车爆款')">🔥 分析爆款</button><button class="qk" onclick="fi('本周视频归因分析')">📊 看数据</button><button class="qk" onclick="fi('Off-peak规则是什么')">❄️ 查知识</button><button class="qk" onclick="fi('找英国火车车厢素材')">🎬 找素材</button></div></div><div id="cA"></div></div>
+<div class="ci"><div class="iw"><textarea id="inp" rows="1" placeholder="输入指令… ⚡即时 / ✦Pipeline" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();hs()}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,72)+'px'"></textarea><button class="snd" onclick="hs()">↑</button></div></div>
+</div>
+<div class="cv hd" id="cV">
+<div class="cvt"><button class="ct a" onclick="cvTab('script',this)">📄 脚本</button><button class="ct" onclick="cvTab('data',this)">📊 数据</button><button class="ct" onclick="cvTab('board',this)">🎬 分镜</button></div>
+<div class="cvb" id="cvB"><div id="cvE" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--t5)"><div style="font-size:32px;opacity:.1;margin-bottom:6px">📝</div><div style="font-size:11px">Agent✦ 模式下内容在此生成</div></div><div id="cvS" class="hd"></div><div id="cvD" class="hd"></div><div id="cvBd" class="hd"></div></div>
+<div class="cvf hd" id="cvF"><button class="bp" onclick="ac('✅ 已提交审核')">✅ 提交审核</button><button class="bg2">✏️ 编辑</button><button class="bg2" onclick="location.reload()">↻ 重写</button><div class="f1"></div><span style="font-size:9px;color:var(--t4)">合规 <span class="badge ba">PASS</span> 核查 <span class="badge ba">3/3</span></span></div>
+</div>
+</div>
+
+<!-- VIRAL PAGE -->
+<div class="pg" id="pg-viral"><div class="vp"><div class="vh"><div class="vht">🔥 爆款库</div><span style="font-size:10px;color:var(--t4)">892条 · 每日3次抓取</span><button class="bg2" style="font-size:10px">筛选</button></div><div class="vb"><div class="dg"><div class="dc"><div class="dv" style="color:var(--am)">892</div><div class="dl">总爆款</div></div><div class="dc"><div class="dv" style="color:var(--gr)">47</div><div class="dl">评分≥80</div></div><div class="dc"><div class="dv" style="color:var(--bl)">12</div><div class="dl">本周新增</div><div class="dd">+3待标记</div></div><div class="dc"><div class="dv" style="color:var(--pu)">23</div><div class="dl">已拆解入库</div></div></div><div class="vg" id="vG"></div></div></div></div>
+
+<!-- DATA PAGE -->
+<div class="pg" id="pg-data"><div class="dp"><div class="dh"><div class="dht">📊 数据看板</div><span style="font-size:10px;color:var(--t4)">本周 · 英国火车省钱系列</span><button class="bg2" style="font-size:10px">导出周报</button></div><div class="db" id="dB"></div></div></div>
+
+<!-- REVIEW PAGE -->
+<div class="pg" id="pg-review"><div class="phP"><div class="phI">✅</div><div class="phT">审核工作台 · 待审核 3条</div><div class="phS">LangGraph interrupt · 飞书卡片双入口 · 打回反馈→记忆</div></div></div>
+
+</div></div>
+
+<!-- RIGHT PANEL -->
+<div class="rp hd" id="rP"><div class="rph"><span style="font-size:13px">📦</span><div class="rpht">资产库</div><div class="rphc">3,523</div></div><div id="sA"></div><div class="lt2" id="lT"></div><div class="lsc" id="lC"></div></div>
+
+</div>
+
+<script>
+let mode='ask',bk=[],cL='hooks',run=false;
+const KBS=[
+{id:"hooks",icon:"🪝",nm:"钩子",ct:478,c:"#f0a030",items:[{t:"在XX做YY，90%的人都在多花冤枉钱",tp:"否定常识",g:"A",rf:18,fx:"+12%",cp:"42%"},{t:"千万别在XX买YY，我说真的",tp:"否定常识",g:"A",rf:14,fx:"+9%",cp:"38%"},{t:"XX人自己都不知道的YY秘密",tp:"身份代入",g:"B",rf:8,fx:"+5%",cp:"35%"},{t:"3个技巧帮你省下200镑火车票钱",tp:"价值直给",g:"A",rf:11,fx:"+7%",cp:"36%"}]},
+{id:"ck",icon:"❄️",nm:"冷知识",ct:1247,c:"#20c4e0",items:[{t:"Off-peak票工作日9:30后，比Anytime便宜40%",tp:"票价",g:"A",rf:22,fx:"+8%",cp:"95%"},{t:"Split Ticketing伦敦→曼城分段买省约23%",tp:"技巧",g:"A",rf:16,fx:"+5%",cp:"88%"},{t:"16-25 Railcard年费£30，年均省£342",tp:"优惠卡",g:"A",rf:13,fx:"+6%",cp:"92%"},{t:"延误超15分可申请Delay Repay，仅3%申请",tp:"权益",g:"B",rf:9,fx:"+4%",cp:"87%"}]},
+{id:"topics",icon:"🎯",nm:"选题",ct:356,c:"#3dd68c",items:[{t:"英国火车Off-peak省钱完全攻略",tp:"攻略",g:"9.1",rf:5,fx:"痛点8.5",cp:"低竞争"},{t:"千万别买错票·罚款避坑指南",tp:"避坑",g:"8.8",rf:0,fx:"痛点9.0",cp:"低竞争"}]},
+{id:"struct",icon:"📐",nm:"结构",ct:67,c:"#4a9eff",items:[{t:"经典四段: 钩子3s→痛点15s→方案25s→CTA5s",tp:"60s",g:"A",rf:28,fx:"38%",cp:"45次"},{t:"故事反转: 钩子→故事→反转→CTA",tp:"90s",g:"A",rf:15,fx:"42%",cp:"23次"}]},
+{id:"comply",icon:"🛡️",nm:"合规",ct:156,c:"#f06060",items:[{t:"禁用：最便宜/最好/100%/绝对",tp:"P1",g:"—",rf:0,fx:"强制",cp:"→更划算"},{t:"价格数据需标注时效性",tp:"P2",g:"—",rf:0,fx:"强制",cp:"→加日期"}]},
+{id:"benefit",icon:"💰",nm:"利益点",ct:134,c:"#e060a0",items:[{t:"点关注下期教你Railcard叠Off-peak",tp:"关注",g:"A",rf:12,fx:"CTR4.2%",cp:"利益"},{t:"评论扣1，省钱清单发给你",tp:"评论",g:"A",rf:28,fx:"CTR6.1%",cp:"诱饵"}]},
+{id:"material",icon:"🎬",nm:"素材",ct:3840,c:"#9070f0",items:[{t:"英国火车站全景·Victoria·5.2s",tp:"Pexels",g:"9.2",rf:8,fx:"免费",cp:"全景"},{t:"旅客刷卡进站·特写·3.1s",tp:"TikHub",g:"8.5",rf:5,fx:"去水印",cp:"动作"},{t:"火车票价对比信息图·1080²",tp:"FLUX",g:"8.8",rf:12,fx:"AI生成",cp:"信息图"}]},
+{id:"example",icon:"⭐",nm:"范例",ct:213,c:"#e0c040",items:[{t:"英国火车攻略60s·完播42%·88分A级",tp:"标杆",g:"A",rf:6,fx:"标杆",cp:"ck001"}]}
+];
+const VD=[
+{title:"在英国坐火车90%多花钱",plat:"TikTok",views:"2.3M",score:94,hook:"否定常识",finish:"44%",status:"✅已拆解",grad:"#f0a030,#e06830"},
+{title:"千万别在火车站买票",plat:"抖音",views:"580K",score:87,hook:"否定常识",finish:"38%",status:"✅标优质",grad:"#4a9eff,#9070f0"},
+{title:"英国人不知道的火车秘密",plat:"小红书",views:"120K",score:76,hook:"身份代入",finish:"35%",status:"⭐待仿写",grad:"#20c4e0,#3dd68c"},
+{title:"坐火车被坑300镑的教训",plat:"TikTok",views:"890K",score:91,hook:"故事型",finish:"41%",status:"✅已拆解",grad:"#e060a0,#f06060"},
+{title:"Split Ticket分段省一半",plat:"YouTube",views:"340K",score:83,hook:"价值直给",finish:"36%",status:"⭐待仿写",grad:"#3dd68c,#20c4e0"},
+{title:"Railcard值不值一年省多少",plat:"抖音",views:"210K",score:79,hook:"算账型",finish:"33%",status:"⭐待标记",grad:"#9070f0,#4a9eff"},
+];
+
+function nav(p){document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('a',n.dataset.p===p));document.querySelectorAll('.pg').forEach(g=>g.classList.toggle('show',g.id==='pg-'+p));if(p==='script')uL();else document.getElementById('rP').classList.add('hd')}
+function setM(m){mode=m;document.getElementById('mA').className='mb'+(m==='ask'?' aa':'');document.getElementById('mB').className='mb'+(m==='agent'?' ab':'');uL()}
+function uL(){const c=document.getElementById('cC'),v=document.getElementById('cV'),r=document.getElementById('rP');if(mode==='ask'){c.className='cc full';v.classList.add('hd');r.classList.add('hd')}else{c.className='cc split';v.classList.remove('hd');r.classList.remove('hd');rSel();rTb();rLb()}}
+function cvTab(t,b){document.querySelectorAll('.ct').forEach(x=>x.classList.remove('a'));b.classList.add('a');['cvS','cvD','cvBd'].forEach(x=>document.getElementById(x).classList.add('hd'));document.getElementById('cvE').classList.add('hd');({script:'cvS',data:'cvD',board:'cvBd'})[t]&&document.getElementById(({script:'cvS',data:'cvD',board:'cvBd'})[t]).classList.remove('hd')}
+
+function rSel(){document.getElementById('sA').innerHTML=`<div class="sa${bk.length?' has':''}"><div class="sah"><div class="sal">📎 素材选择</div><div class="sac">${bk.length}项</div></div>${bk.length?bk.map(b=>`<div class="si2"><span>${b.ic}</span><span style="flex:1;color:var(--t2)">${b.lb}</span><span class="rm" onclick="rmB('${b.id}')">✕</span></div>`).join(''):'<div style="font-size:9px;color:var(--t5);text-align:center;padding:5px">从各库勾选 → 注入对话上下文</div>'}<div class="sab"><button class="sinj" onclick="if(bk.length)ac('📥 已注入'+bk.length+'项素材')">📥 注入上下文</button><button class="sai">✦ AI帮选</button></div></div>`}
+function rTb(){document.getElementById('lT').innerHTML=KBS.map(k=>`<button class="lb${cL===k.id?' a':''}" onclick="cL='${k.id}';rTb();rLb()">${k.icon}${k.ct||''}</button>`).join('')}
+function rLb(){const kb=KBS.find(k=>k.id===cL);if(!kb)return;let h=`<input class="lss" placeholder="搜索 ${kb.nm}…"><div style="display:flex;justify-content:space-between;margin-bottom:3px;padding:0 2px;font-size:10px"><span style="font-weight:700;color:${kb.c}">${kb.icon} ${kb.nm}</span><span style="color:var(--t5)">${kb.items.length}/${kb.ct}</span></div>`;
+kb.items.forEach((it,i)=>{const id=kb.id+'_'+i,ib=bk.some(b=>b.id===id);let bd='';if(it.g==='A')bd='<span class="badge ba">A</span>';else if(it.g==='B')bd='<span class="badge bb">B</span>';else if(it.g==='—')bd='<span class="badge brd">规则</span>';else if(parseFloat(it.g)>=8)bd=`<span class="badge ba">${it.g}</span>`;else bd=`<span class="badge bb">${it.g}</span>`;h+=`<div class="kc${ib?' sel':''}" onclick="tB('${kb.id}',${i},'${kb.icon}','${it.t.substring(0,12)}…')"><div class="kct"><div class="kcx">${it.t}</div><div class="kca">${ib?'✓':'+'}</div></div><div class="kcm"><span style="color:${kb.c}">${it.tp}</span>${bd}${it.rf?`<span>引${it.rf}</span>`:''}${it.fx?`<span style="color:var(--gr)">${it.fx}</span>`:''}${it.cp?`<span>${it.cp}</span>`:''}</div></div>`});
+document.getElementById('lC').innerHTML=h}
+function tB(t,i,ic,lb){const id=t+'_'+i,x=bk.findIndex(b=>b.id===id);if(x>=0)bk.splice(x,1);else bk.push({id,ic,lb});rSel();rLb()}
+function rmB(id){bk=bk.filter(b=>b.id!==id);rSel();rLb()}
+
+function rVir(){document.getElementById('vG').innerHTML=VD.map(v=>{const sc=v.score>=90?'ba':v.score>=80?'bb':'bo';return`<div class="vc"><div class="vtb" style="background:linear-gradient(135deg,${v.grad})"><div class="vsc badge ${sc}" style="font-size:12px;padding:3px 8px">${v.score}</div><div class="vpl">${v.plat} · ${v.views}</div></div><div class="vbd"><div class="vnm">${v.title}</div><div class="vmeta">钩子：${v.hook} · 完播${v.finish}</div><div class="vtags"><span class="vtg" style="background:var(--amG);color:var(--am)">${v.hook}</span><span class="vtg" style="background:var(--grG);color:var(--gr)">${v.status}</span></div><div class="vacts"><button class="vact" style="background:var(--amG);color:var(--am)">✍️仿写</button><button class="vact" style="background:var(--cyG);color:var(--cy)">📥入库</button><button class="vact" style="background:var(--puG);color:var(--pu)">🔍拆解</button></div></div></div>`}).join('')}
+
+function rData(){const hks=[{t:"否定常识",r:42,c:"var(--am)"},{t:"身份代入",r:38,c:"var(--pu)"},{t:"价值直给",r:35,c:"var(--bl)"},{t:"悬念反转",r:33,c:"var(--cy)"},{t:"故事共情",r:29,c:"var(--pk)"}];const ins=[{d:"+15%",c:"var(--gr)",t:"否定常识型完播率↑15%，建议本周60%使用"},{d:"+8%",c:"var(--cy)",t:"Off-peak冷知识引用效果最佳，完播+8%"},{d:"+12%",c:"var(--bl)",t:"60s比90s完播高12%，建议控制60s"},{d:"+6%",c:"var(--am)",t:"周二/四18:00发布效果最好"}];
+document.getElementById('dB').innerHTML=`<div class="dg"><div class="dc"><div class="dv" style="color:var(--gr)">12</div><div class="dl">本周产量</div><div class="dd">+50%</div></div><div class="dc"><div class="dv" style="color:var(--bl)">38.5%</div><div class="dl">平均完播</div><div class="dd">+5.2%</div></div><div class="dc"><div class="dv" style="color:var(--am)">72%</div><div class="dl">AI通过率</div><div class="dd">+12%</div></div><div class="dc"><div class="dv" style="color:var(--cy)">¥4.2</div><div class="dl">单条成本</div><div class="dd">-35%</div></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div class="cc2"><div class="cct">钩子类型完播率</div>${hks.map(h=>`<div class="br"><div class="bl2">${h.t}</div><div class="bt"><div class="bf" style="width:${h.r/42*100}%;background:${h.c}"></div></div><div class="bv" style="color:${h.c}">${h.r}%</div></div>`).join('')}</div><div class="cc2"><div class="cct">AI归因洞察</div>${ins.map(i=>`<div class="ic2"><div class="id2" style="color:${i.c}">${i.d}</div><div class="it2">${i.t}</div></div>`).join('')}</div></div>
+<div class="cc2"><div class="cct">本周发布视频效果</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px"><div style="padding:10px;border-radius:var(--r);background:var(--pn);border:1px solid var(--bd)"><div style="font-size:11px;font-weight:600">省钱攻略Vol.1</div><div style="font-size:9px;color:var(--t4);margin-top:2px">抖音 · 45K播放</div><div style="display:flex;gap:8px;margin-top:4px;font-size:10px"><span style="color:var(--gr)">完播38%</span><span style="color:var(--am)">评分84</span></div></div><div style="padding:10px;border-radius:var(--r);background:var(--pn);border:1px solid var(--bd)"><div style="font-size:11px;font-weight:600">省钱攻略Vol.2</div><div style="font-size:9px;color:var(--t4);margin-top:2px">TikTok · 120K播放</div><div style="display:flex;gap:8px;margin-top:4px;font-size:10px"><span style="color:var(--gr);font-weight:700">完播44%↑</span><span style="color:var(--gr)">评分91</span></div></div><div style="padding:10px;border-radius:var(--r);background:var(--pn);border:1px solid var(--bd)"><div style="font-size:11px;font-weight:600">省钱攻略Vol.3</div><div style="font-size:9px;color:var(--t4);margin-top:2px">B站 · 28K播放</div><div style="display:flex;gap:8px;margin-top:4px;font-size:10px"><span style="color:var(--yl)">完播32%</span><span style="color:var(--yl)">评分76</span></div></div></div></div>`}
+
+function hE(){document.getElementById('cE').classList.add('hd')}
+function ac(h){hE();const d=document.createElement('div');d.className='msg ma';d.innerHTML=`<div class="av">✦</div><div class="b">${h}</div>`;document.getElementById('cA').appendChild(d);document.getElementById('cS').scrollTop=99999}
+function uc(h){hE();const d=document.createElement('div');d.className='msg mu';d.innerHTML=`<div class="b">${h}</div>`;document.getElementById('cA').appendChild(d);document.getElementById('cS').scrollTop=99999}
+function ae(h){hE();const d=document.createElement('div');d.innerHTML=h;if(d.firstElementChild)document.getElementById('cA').appendChild(d.firstElementChild);document.getElementById('cS').scrollTop=99999}
+const W=ms=>new Promise(r=>setTimeout(r,ms));
+function fi(t){document.getElementById('inp').value=t;document.getElementById('inp').focus()}
+function sS(s,t){const d=document.getElementById('sd'),x=document.getElementById('st');if(s==='run'){d.style.background='var(--am)';d.style.animation='pu 1s infinite'}else if(s==='done'){d.style.background='var(--gr)';d.style.animation='none'}else{d.style.background='var(--t5)';d.style.animation='none'};x.textContent=t}
+function hs(){const inp=document.getElementById('inp'),t=inp.value.trim();if(!t||run)return;inp.value='';inp.style.height='auto';if(mode==='ask')doAsk(t);else doAgent(t)}
+
+async function doAsk(t){run=true;uc(t);await W(400);if(t.includes('Off-peak')||t.includes('规则'))ac('Off-peak票在工作日9:30后和周末全天可用，平均比Anytime便宜<b style="color:var(--gr)">40%</b>。仅12%旅客知道。<span class="rf rfc" style="display:inline;margin-left:3px">ck_001↑+8%</span><br><br><span style="font-size:10px;color:var(--t4)">来源：nationalrail.co.uk · 置信95%</span>');else if(t.includes('钩子'))ac('5个否定常识型钩子：<br>① 在英国坐火车，<b>90%的人都在多花冤枉钱</b><br>② <b>千万别在火车站买票</b>，我说真的<br>③ 英国人<b>自己都不知道</b>的火车秘密<br>④ 我在英国花了<b>300镑冤枉钱</b>才发现真相<br>⑤ 你的火车票钱够<b>飞一趟巴黎</b>了');else ac(`已收到。Ask⚡为你快速处理。如需Pipeline请切换<b style="color:var(--am)">Agent✦</b>。`);run=false}
+
+async function doAgent(t){run=true;uc(t||'帮我写一条英国火车省钱攻略60秒脚本');await W(400);ae(`<div class="afc"><div class="afc-t">✦ 意图理解 · 参数补齐</div><div class="afr"><span class="aft">auto</span>风格：活泼<span class="afs">←记忆</span></div><div class="afr"><span class="aft">auto</span>钩子：否定常识<span class="afs">←60%</span></div><div class="afr"><span class="aft">指定</span>时长：60秒≈300字</div><div class="afr"><span class="aft">auto</span>产线：英铁<span class="afs">←当前项目</span></div><div style="display:flex;gap:5px;margin-top:6px"><button class="bp" style="background:var(--am);font-size:10px;padding:4px 12px" id="cf" onclick="rP2()">✓ 确认</button><button class="bg2" style="font-size:10px">✏️改</button></div></div>`)}
+
+async function rP2(){document.getElementById('cf').textContent='已确认✓';document.getElementById('cf').disabled=true;document.getElementById('cf').style.opacity='.4';sS('run','执行中…');await W(200);
+const st=['①选题','②RAG 6库','③钩子','④正文','⑤分镜','⑥CTA','⑦核查','⑧评分','⑨审核'];
+ae(`<div class="exp"><div class="exh">📋 Pipeline·${st.length}步</div><div class="exs" id="eS">${st.map((s,i)=>`<div class="es wt" id="e${i}"><div class="esd">○</div><span class="esn">${s}</span></div>`).join('')}</div></div>`);
+document.getElementById('cvE').classList.add('hd');const cs=document.getElementById('cvS');cs.classList.remove('hd');
+cs.innerHTML=`<div class="sg"><div class="sgh"><div class="sgc" style="background:var(--am)"></div><div class="sgtp" style="color:var(--am)">🔥 钩子</div><div class="f1"></div><div class="sgtm">0–3s</div><button class="sgrg" onclick="rg(this)">↻</button></div><div class="sgb" id="hB" contenteditable></div><div class="sgr" id="hR"></div></div>
+<div class="sg"><div class="sgh"><div class="sgc" style="background:var(--cy)"></div><div class="sgtp" style="color:var(--cy)">📝 正文A</div><div class="f1"></div><div class="sgtm">3–20s</div><button class="sgrg" onclick="rg(this)">↻</button></div><div class="sgb" id="a1" contenteditable></div><div class="sgr" id="a1R"></div></div>
+<div class="sg"><div class="sgh"><div class="sgc" style="background:var(--bl)"></div><div class="sgtp" style="color:var(--bl)">📝 正文B</div><div class="f1"></div><div class="sgtm">20–48s</div><button class="sgrg" onclick="rg(this)">↻</button></div><div class="sgb" id="a2" contenteditable></div><div class="sgr" id="a2R"></div></div>
+<div class="sg"><div class="sgh"><div class="sgc" style="background:var(--gr)"></div><div class="sgtp" style="color:var(--gr)">🎯 CTA</div><div class="f1"></div><div class="sgtm">48–60s</div><button class="sgrg" onclick="rg(this)">↻</button></div><div class="sgb" id="cB" contenteditable></div><div class="sgr" id="cBR"></div></div><div id="scA"></div>`;
+
+// Data tab
+const dd=document.getElementById('cvD');dd.innerHTML=`<div class="dg"><div class="dc"><div class="dv" style="color:var(--gr)">38.5%</div><div class="dl">均完播</div></div><div class="dc"><div class="dv" style="color:var(--am)">84</div><div class="dl">均评分</div></div><div class="dc"><div class="dv" style="color:var(--bl)">12</div><div class="dl">周产量</div></div><div class="dc"><div class="dv" style="color:var(--cy)">¥4.2</div><div class="dl">单条成本</div></div></div><div class="cc2"><div class="cct">当前脚本引用素材效果</div><div class="br"><div class="bl2">ck_001 Off-peak</div><div class="bt"><div class="bf" style="width:85%;background:var(--cy)"></div></div><div class="bv" style="color:var(--cy)">+8%</div></div><div class="br"><div class="bl2">ck_004 Split</div><div class="bt"><div class="bf" style="width:65%;background:var(--gr)"></div></div><div class="bv" style="color:var(--gr)">+5%</div></div><div class="br"><div class="bl2">hk_023 否定常识</div><div class="bt"><div class="bf" style="width:95%;background:var(--am)"></div></div><div class="bv" style="color:var(--am)">+12%</div></div></div>`;
+
+// Board tab
+document.getElementById('cvBd').innerHTML=`<div class="sbs">
+<div class="shot"><div class="sth" style="background:linear-gradient(135deg,#f0a030,#e06830)"><span style="z-index:1">🔥</span><div class="dur">0–3s</div></div><div class="sti"><div class="stl"><span class="tag" style="background:var(--amG);color:var(--am)">钩子</span>否定常识型开场</div><div class="std">镜头：真人口播居中 · 快速zoom · 大字标题叠加</div><div class="sts">"在英国坐火车，90%的人都在多花冤枉钱"</div></div></div>
+<div class="shot"><div class="sth" style="background:linear-gradient(135deg,#20c4e0,#4a9eff)"><span style="z-index:1">📝</span><div class="dur">3–20s</div></div><div class="sti"><div class="stl"><span class="tag" style="background:var(--cyG);color:var(--cy)">正文A</span>Off-peak+Split</div><div class="std">镜头：信息图叠加 · 票价对比动画 · 火车站B-Roll</div><div class="sts">"Off-peak工作日9:30后便宜40%…分段买票省23%"</div></div></div>
+<div class="shot"><div class="sth" style="background:linear-gradient(135deg,#4a9eff,#9070f0)"><span style="z-index:1">📝</span><div class="dur">20–48s</div></div><div class="sti"><div class="stl"><span class="tag" style="background:var(--blG);color:var(--bl)">正文B</span>Railcard+Advance</div><div class="std">镜头：实操演示 · APP录屏 · 算账信息图</div><div class="sts">"Railcard年费30镑年均省342镑…Advance最低12.5镑"</div></div></div>
+<div class="shot"><div class="sth" style="background:linear-gradient(135deg,#3dd68c,#20c4e0)"><span style="z-index:1">🎯</span><div class="dur">48–60s</div></div><div class="sti"><div class="stl"><span class="tag" style="background:var(--grG);color:var(--gr)">CTA</span>关注+评论引导</div><div class="std">镜头：口播+字幕强调 · 评论区截图 · 下期预告</div><div class="sts">"点关注下期教你叠加省钱，评论扣1清单发你"</div></div></div></div>`;
+
+await rSt(0,'✓','8.6分',600);
+ae(`<div class="ivc"><div class="ivt">🟡 选题确认</div><div class="ivo sel" onclick="so(this)"><span>🏆</span>Off-peak省钱攻略<span class="sc" style="color:var(--gr)">8.6</span></div><div class="ivo" onclick="so(this)">Split Ticketing揭秘<span class="sc">7.9</span></div><div class="ivo" onclick="so(this)">Railcard值不值<span class="sc">7.5</span></div><div style="margin-top:5px"><button class="bp" style="background:var(--yl);font-size:9.5px;padding:4px 10px" onclick="this.closest('.ivc').style.opacity='.3'">确认→</button></div></div>`);await W(1000);
+await rSt(1,'✓','17条',800);await rSt(2,'✓','hk_023',400);await str('hB','在英国坐火车，90%的人都在多花冤枉钱。你以为买票只能去官网？太天真了。');document.getElementById('hR').innerHTML='<span class="rf rfh">hk_023↑42%</span>';
+await rSt(3,'✓','ck001,004',600);await str('a1','说实话英国火车票门道特别多。Off-peak就是工作日九点半以后的票，平均便宜百分之四十！省下来够吃两顿炸鱼薯条。还有更狠的——分段买票，伦敦到曼城直接买五十多镑，中间加伯明翰转一下才四十出头。');document.getElementById('a1R').innerHTML='<span class="rf rfc">ck_001↑+8%</span><span class="rf rfc">ck_004↑+5%</span>';
+await rSt(4,'✓','3段素材',300);await str('a2','16到25岁一定买Railcard。年费三十镑，一年平均省三百四十多镑。三十换三百四不是白捡钱吗？提前十二周买Advance票最低十二镑五。');document.getElementById('a2R').innerHTML='<span class="rf rfc">ck_007↑+3%</span><span class="rf rfc">ck_012↑+4%</span>';
+await rSt(5,'✓','利益承诺',250);await str('cB','觉得有用点个关注，下期教你Railcard叠加Off-peak，一年省够飞巴黎。评论扣1，省钱清单发你。');document.getElementById('cBR').innerHTML='<span class="rf rfh">ben_002 CTR6.1%</span>';
+await rSt(6,'✓','3/3PASS',700);await rSt(7,'✓','88分A',400);
+const dims=[{v:17,mx:20,l:'❄️冷知识',c:'var(--cy)'},{v:22,mx:25,l:'💬口语',c:'var(--am)'},{v:18,mx:20,l:'📊密度',c:'var(--bl)'},{v:13,mx:15,l:'📐结构',c:'var(--pu)'},{v:18,mx:20,l:'🛡️合规',c:'var(--gr)'}];
+document.getElementById('scA').innerHTML=`<div class="scp"><div class="sct"><div class="scn">88</div><div class="scg">A级</div><div class="sci">287字·58秒</div></div><div class="scd">${dims.map(d=>`<div class="dm"><div class="dmv" style="color:${d.c}">${d.v}</div><div class="dml">${d.l}/${d.mx}</div><div class="dmb"><div class="dmf" style="width:${d.v/d.mx*100}%;background:${d.c}"></div></div></div>`).join('')}</div></div>`;
+sSS(8,'pa','⏸');document.getElementById('cvF').classList.remove('hd');sS('done','完成·88/A');
+ac('脚本完成，<b style="color:var(--am)">88分A级</b>，核查通过。<span style="font-size:10px;color:var(--t4)">点↻单段重写 · 切「数据」「分镜」查看配套</span>');run=false}
+
+function so(el){el.parentElement.querySelectorAll('.ivo').forEach(o=>o.classList.remove('sel'));el.classList.add('sel')}
+async function rSt(n,ic,dt,ms){sSS(n,'rn','◌');await W(ms);sSS(n,'dn',ic);if(dt){const s=document.getElementById('e'+n);if(s){const m=document.createElement('span');m.className='esm';m.textContent=dt;s.appendChild(m)}}}
+function sSS(n,c,ic){const s=document.getElementById('e'+n);if(!s)return;s.className='es '+c;s.querySelector('.esd').textContent=ic}
+async function str(id,t){const el=document.getElementById(id);el.innerHTML='';for(let i=0;i<t.length;i+=6){el.textContent=t.substring(0,Math.min(i+6,t.length));await W(8)}}
+function rg(btn){const sg=btn.closest('.sg'),bd=sg.querySelector('.sgb');bd.innerHTML='<div class="sk" style="width:80%"></div><div class="sk" style="width:55%"></div>';setTimeout(()=>{bd.textContent='（已重新生成·内容已更新）'},1200)}
+
+rVir();rData();
+</script></body></html>
