@@ -1,0 +1,2472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TripFlow · 数据洞察</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
+<style>
+  :root {
+    --bg: #F8F7FB;
+    --bg-elev: #FFFFFF;
+    --bg-sub: #F2F0F9;
+    --bg-hl: #EEEDFE;
+    --bg-hl-strong: #E3DFFC;
+    --line: #ECEAF3;
+    --line-strong: #D9D5E8;
+    --text: #1A1727;
+    --text-2: #5B5775;
+    --text-3: #8E8AA5;
+    --brand: #6D5EF8;
+    --brand-2: #4E3DE4;
+    --brand-ink: #2B1E8F;
+    --brand-50: #EEEDFE;
+    --brand-100: #D6D2FB;
+    --brand-200: #B7B0F4;
+    --success: #0FA871;
+    --success-bg: #E4F6EE;
+    --danger: #E5484D;
+    --danger-bg: #FCEAEA;
+    --warn: #EA9E17;
+    --warn-bg: #FBEEDA;
+    --info: #2E7BD4;
+    --info-bg: #E2EEFB;
+    --pink: #D4537E;
+    --pink-bg: #FBEAF0;
+    --teal: #0F9E7A;
+    --teal-bg: #E1F5EF;
+    --radius-sm: 6px;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --font-sans: "DM Sans", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+    --font-mono: "DM Mono", ui-monospace, SFMono-Regular, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--text); font-family: var(--font-sans); font-size: 13px; line-height: 1.55; -webkit-font-smoothing: antialiased; font-feature-settings: "cv11" 1, "ss01" 1; }
+  button { font-family: inherit; font-size: inherit; cursor: pointer; border: none; background: transparent; color: inherit; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  /* ============ 顶栏 ============ */
+  .topbar {
+    display: flex; align-items: center; height: 60px;
+    padding: 0 20px; background: var(--bg-elev);
+    border-bottom: 1px solid var(--line);
+    gap: 28px; font-size: 13px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; min-width: 200px; }
+  .brand-logo {
+    width: 30px; height: 30px; position: relative; flex-shrink: 0;
+  }
+  .brand-logo::before, .brand-logo::after {
+    content: ""; position: absolute; inset: 0;
+    border: 1.5px solid var(--brand); border-radius: 50%;
+  }
+  .brand-logo::before { transform: rotate(30deg); border-top-color: transparent; border-bottom-color: transparent; }
+  .brand-logo::after { transform: rotate(-30deg); border-top-color: transparent; border-bottom-color: transparent; }
+  .brand-dot {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  }
+  .brand-dot span { width: 8px; height: 8px; border-radius: 50%; background: var(--brand); }
+  .brand-name { font-weight: 700; font-size: 17px; color: var(--text); letter-spacing: -0.02em; }
+  .brand-slogan { font-size: 10.5px; color: var(--text-3); margin-top: 1px; letter-spacing: 0.02em; }
+
+  .nav-modules { display: flex; align-items: center; gap: 4px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 8px;
+    font-size: 13px; color: var(--text-2); font-weight: 500;
+    transition: all 0.15s;
+  }
+  .nav-item:hover { background: var(--bg-sub); color: var(--text); }
+  .nav-item.active { background: var(--bg-hl); color: var(--brand-ink); }
+  .nav-item .ico { width: 14px; height: 14px; stroke-width: 1.8; }
+
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 20px; }
+  .env-switch { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-2); }
+  .env-dot { display: inline-flex; align-items: center; gap: 5px; }
+  .env-dot-circle { width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); }
+  .env-dot.on .env-dot-circle { background: var(--brand); box-shadow: 0 0 0 3px rgba(109, 94, 248, 0.15); }
+  .env-dot.on { color: var(--brand-ink); font-weight: 500; }
+  .org-select {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 10px; border-radius: 8px;
+    font-size: 12px; color: var(--text-2);
+  }
+  .org-select:hover { background: var(--bg-sub); }
+  .user-info { display: flex; align-items: center; gap: 8px; }
+  .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--bg-hl-strong); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 11px; color: var(--brand-ink); }
+
+  /* ============ 应用主布局 ============ */
+  .app { display: flex; height: calc(100vh - 60px); }
+
+  /* ============ 左栏 · 默认收起,hover 展开 ============ */
+  .sidebar {
+    width: 64px; flex-shrink: 0;
+    background: var(--bg-elev); border-right: 1px solid var(--line);
+    padding: 10px 8px; overflow: visible;
+    display: flex; flex-direction: column;
+    transition: width 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative; z-index: 20;
+  }
+  .sidebar:hover, .sidebar.pinned { width: 240px; }
+  .sidebar-list { display: flex; flex-direction: column; gap: 2px; overflow-y: auto; overflow-x: hidden; flex: 1; min-height: 0; }
+  .sidebar-list::-webkit-scrollbar { width: 4px; }
+  .sidebar-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+  .agent-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 9px;
+    cursor: pointer; transition: background 0.12s;
+    position: relative;
+  }
+  .agent-item:hover { background: var(--bg-sub); }
+  .agent-item.active { background: var(--bg-hl); }
+  .agent-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+    background: var(--bg-hl-strong);
+  }
+  .agent-meta { min-width: 0; flex: 1; opacity: 0; transition: opacity 0.15s; white-space: nowrap; overflow: hidden; }
+  .sidebar:hover .agent-meta, .sidebar.pinned .agent-meta { opacity: 1; }
+  .agent-name { font-size: 12.5px; font-weight: 600; color: var(--text); }
+  .agent-item.active .agent-name { color: var(--brand-ink); }
+  .agent-role { font-size: 10.5px; color: var(--text-3); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .sidebar-header {
+    padding: 6px 8px 10px; margin-bottom: 6px;
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sidebar-header .count {
+    width: 30px; height: 30px; border-radius: 9px;
+    background: var(--brand); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; font-family: var(--font-mono);
+    flex-shrink: 0;
+  }
+  .sidebar-header .title { font-size: 12px; font-weight: 600; color: var(--text); opacity: 0; transition: opacity 0.15s; white-space: nowrap; }
+  .sidebar:hover .sidebar-header .title, .sidebar.pinned .sidebar-header .title { opacity: 1; }
+
+  .sidebar-collapse {
+    margin-top: auto; padding: 8px 10px; display: flex; align-items: center; gap: 10px;
+    color: var(--text-3); font-size: 11.5px; border-top: 1px solid var(--line);
+    cursor: pointer; border-radius: 8px;
+  }
+  .sidebar-collapse:hover { background: var(--bg-sub); color: var(--text); }
+  .sidebar-collapse svg { flex-shrink: 0; transition: transform 0.2s; }
+  .sidebar.pinned .sidebar-collapse svg { transform: rotate(180deg); }
+  .sidebar-collapse .pin-label { opacity: 0; transition: opacity 0.15s; white-space: nowrap; }
+  .sidebar:hover .pin-label, .sidebar.pinned .pin-label { opacity: 1; }
+
+  /* ============ 主区 ============ */
+  .main { flex: 1; overflow-y: auto; background: var(--bg); }
+  .main-inner { padding: 20px 28px 40px; max-width: 1400px; }
+
+  .page-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 20px; padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .page-title-group h1 {
+    font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--text);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .page-subtitle { font-size: 12.5px; color: var(--text-3); margin-top: 4px; display: flex; align-items: center; gap: 16px; }
+  .page-subtitle .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-3); }
+  .title-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px; background: var(--brand-50); color: var(--brand-ink);
+    border-radius: 12px; font-size: 11px; font-weight: 500;
+  }
+  .title-tag-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--brand); }
+  .page-actions { display: flex; align-items: center; gap: 8px; }
+
+  /* 按钮 */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 500; transition: all 0.15s; border: 1px solid transparent; }
+  .btn-primary { background: var(--brand); color: #fff; }
+  .btn-primary:hover { background: var(--brand-2); }
+  .btn-ghost { background: var(--bg-elev); color: var(--text-2); border-color: var(--line-strong); }
+  .btn-ghost:hover { border-color: var(--brand-200); color: var(--brand-ink); }
+
+  /* ============ 子 Tab (看板切换) ============ */
+  .subtabs {
+    display: flex; gap: 4px; margin-bottom: 20px;
+    background: var(--bg-elev); border: 1px solid var(--line);
+    border-radius: 12px; padding: 5px;
+  }
+  .subtab {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-radius: 8px;
+    font-size: 12.5px; color: var(--text-2); font-weight: 500;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .subtab:hover { color: var(--text); }
+  .subtab.active { background: var(--bg-hl); color: var(--brand-ink); font-weight: 600; box-shadow: 0 1px 3px rgba(109, 94, 248, 0.08); }
+  .subtab .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; font-size: 10.5px; font-weight: 600; background: var(--bg-hl-strong); color: var(--brand-ink); border-radius: 9px; }
+  .subtab.active .badge { background: var(--brand); color: #fff; }
+
+  /* ============ 卡片 ============ */
+  .card {
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+  }
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px; font-weight: 600; color: var(--text);
+  }
+  .card-title-hint { font-size: 11px; color: var(--text-3); font-weight: 400; }
+  .card-meta { font-size: 11px; color: var(--text-3); font-family: var(--font-mono); }
+
+  .tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; font-size: 10.5px; font-weight: 500; border-radius: 10px; }
+  .tag-brand { background: var(--brand-50); color: var(--brand-ink); }
+  .tag-success { background: var(--success-bg); color: var(--success); }
+  .tag-danger { background: var(--danger-bg); color: var(--danger); }
+  .tag-warn { background: var(--warn-bg); color: var(--warn); }
+  .tag-info { background: var(--info-bg); color: var(--info); }
+  .tag-pink { background: var(--pink-bg); color: var(--pink); }
+  .tag-teal { background: var(--teal-bg); color: var(--teal); }
+  .tag-mono { font-family: var(--font-mono); font-size: 10px; }
+
+  /* ============ KPI 卡片区 ============ */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  .kpi {
+    background: var(--bg-elev); border: 1px solid var(--line);
+    padding: 16px 18px; border-radius: var(--radius-lg);
+    position: relative; overflow: hidden;
+  }
+  .kpi.featured { background: linear-gradient(135deg, #F5F3FE 0%, #FAFAFE 100%); border-color: var(--brand-100); }
+  .kpi-label { font-size: 12px; color: var(--text-2); font-weight: 500; display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+  .kpi-label .badge-l1 { padding: 1px 6px; font-size: 9.5px; font-weight: 700; background: var(--brand-ink); color: #fff; border-radius: 4px; letter-spacing: 0.05em; }
+  .kpi-value {
+    font-size: 28px; font-weight: 700; letter-spacing: -0.02em;
+    color: var(--text); line-height: 1; display: flex; align-items: baseline; gap: 4px;
+  }
+  .kpi-value .unit { font-size: 14px; font-weight: 500; color: var(--text-2); }
+  .kpi-delta { margin-top: 10px; display: flex; align-items: center; gap: 10px; }
+  .kpi-delta-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; font-size: 11px; font-weight: 600; border-radius: 10px; }
+  .kpi-delta-pill.up { background: var(--success-bg); color: var(--success); }
+  .kpi-delta-pill.down { background: var(--danger-bg); color: var(--danger); }
+  .kpi-delta-target { font-size: 11px; color: var(--text-3); }
+  .kpi-spark { position: absolute; right: 12px; top: 14px; opacity: 0.7; }
+
+  /* ============ 表格 ============ */
+  .table-wrap { margin: 0 -4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  thead th {
+    text-align: left; padding: 10px 12px;
+    font-weight: 600; color: var(--text-3); font-size: 11px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-sub);
+  }
+  thead th:first-child { border-top-left-radius: var(--radius); border-bottom-left-radius: var(--radius); }
+  thead th:last-child { border-top-right-radius: var(--radius); border-bottom-right-radius: var(--radius); }
+  tbody td { padding: 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr { transition: background 0.12s; }
+  tbody tr:hover { background: var(--bg-sub); }
+  .td-agent { display: flex; align-items: center; gap: 10px; }
+  .td-agent-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--bg-hl); display: flex; align-items: center; justify-content: center; font-size: 15px; }
+  .td-agent-name { font-weight: 600; color: var(--text); }
+
+  .bar {
+    display: inline-flex; align-items: center; gap: 10px; min-width: 130px;
+  }
+  .bar-track { flex: 1; height: 6px; background: var(--bg-hl); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--brand); border-radius: 3px; }
+  .bar-fill.danger { background: var(--danger); }
+  .bar-fill.warn { background: var(--warn); }
+  .bar-fill.success { background: var(--success); }
+  .bar-value { min-width: 36px; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* 告警条 */
+  .alert-banner {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 16px; margin-bottom: 18px;
+    background: linear-gradient(90deg, #FCEAEA 0%, #FCEAEA88 100%);
+    border: 1px solid #F5C0C3; border-left: 3px solid var(--danger);
+    border-radius: var(--radius);
+    font-size: 12.5px;
+  }
+  .alert-banner .sev { font-weight: 700; color: var(--danger); letter-spacing: 0.02em; }
+  .alert-banner .msg { color: var(--text); }
+  .alert-banner .ts { margin-left: auto; color: var(--text-3); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .alert-banner .btn { margin-left: 4px; padding: 4px 10px; font-size: 11px; }
+
+  /* 图表容器 */
+  .chart-wrap { position: relative; width: 100%; }
+  .chart-wrap.h-240 { height: 260px; }
+  .chart-wrap.h-200 { height: 200px; }
+  .chart-wrap.h-180 { height: 180px; }
+
+  /* 网格布局 */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-2-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .stack-12 > * + * { margin-top: 12px; }
+  .stack-16 > * + * { margin-top: 16px; }
+
+  /* 列表项 */
+  .insight-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .insight-item {
+    display: flex; gap: 10px; padding: 10px 12px;
+    background: var(--bg-sub); border-radius: var(--radius);
+    font-size: 12.5px; color: var(--text); line-height: 1.5;
+  }
+  .insight-item.good { border-left: 3px solid var(--success); background: var(--success-bg); color: #0A5A3D; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+  .insight-item.risk { border-left: 3px solid var(--danger); background: var(--danger-bg); color: #8F1A1D; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+  .insight-item .mark {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--bg-elev); color: var(--text-2);
+    font-weight: 700; font-size: 10px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+
+  /* 模块渗透列表 */
+  .module-row {
+    display: grid; grid-template-columns: 100px 1fr 56px; align-items: center;
+    gap: 16px; padding: 11px 4px; border-bottom: 1px solid var(--line); font-size: 12.5px;
+  }
+  .module-row:last-child { border-bottom: none; }
+  .module-row .name { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .module-row .name .icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 4px; background: var(--bg-hl); color: var(--brand-ink); font-size: 10px; font-weight: 700; }
+  .module-row .pct { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .module-row .features { grid-column: 2; font-size: 11px; color: var(--text-3); margin-top: 2px; font-family: var(--font-mono); }
+
+  /* 漏斗 */
+  .funnel {
+    display: flex; align-items: flex-end; gap: 6px;
+    height: 130px; padding: 8px 0;
+  }
+  .funnel-step { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .funnel-bar {
+    background: linear-gradient(180deg, #8A7DFB 0%, #6D5EF8 100%);
+    color: #fff; border-radius: 8px 8px 0 0;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 8px 4px; font-weight: 700; font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+  .funnel-bar.step-2 { background: linear-gradient(180deg, #9E93FC 0%, #7F72FA 100%); }
+  .funnel-bar.step-3 { background: linear-gradient(180deg, #B3A9FD 0%, #9087FB 100%); }
+  .funnel-bar.step-4 { background: linear-gradient(180deg, #C7BFFD 0%, #A89EFB 100%); }
+  .funnel-lbl { font-size: 10.5px; color: var(--text-3); text-align: center; line-height: 1.3; }
+  .funnel-drop { display: inline-block; font-size: 10px; color: var(--danger); margin-top: 2px; }
+
+  /* 埋点字典 */
+  .chip-group { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: 14px; font-size: 12px; font-weight: 500;
+    background: var(--bg-elev); color: var(--text-2); border: 1px solid var(--line);
+    transition: all 0.15s;
+  }
+  .chip:hover { border-color: var(--brand-200); color: var(--brand-ink); }
+  .chip.on { background: var(--brand-ink); color: #fff; border-color: var(--brand-ink); }
+  .chip .n { font-family: var(--font-mono); font-size: 11px; opacity: 0.7; }
+  .chip.on .n { opacity: 1; }
+
+  .schema-item {
+    background: var(--bg-elev); border: 1px solid var(--line);
+    border-radius: var(--radius); margin-bottom: 10px; overflow: hidden;
+    transition: all 0.15s;
+  }
+  .schema-head {
+    display: grid; grid-template-columns: auto 1fr auto auto;
+    align-items: center; gap: 14px; padding: 12px 16px;
+    cursor: pointer; user-select: none;
+  }
+  .schema-item:hover { border-color: var(--brand-200); }
+  .schema-item.open { border-color: var(--brand-200); box-shadow: 0 1px 4px rgba(109, 94, 248, 0.08); }
+  .schema-name { font-family: var(--font-mono); font-size: 12.5px; color: var(--brand-ink); font-weight: 600; }
+  .schema-desc { font-size: 12px; color: var(--text-2); }
+  .schema-cat-tag { font-size: 10.5px; padding: 2px 8px; border-radius: 10px; font-family: var(--font-mono); font-weight: 500; }
+  .schema-chev { color: var(--text-3); transition: transform 0.2s; width: 16px; height: 16px; }
+  .schema-item.open .schema-chev { transform: rotate(180deg); }
+  .schema-body {
+    padding: 0 16px; max-height: 0; overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+  }
+  .schema-item.open .schema-body { max-height: 800px; padding: 14px 16px 16px; border-top: 1px solid var(--line); }
+  .schema-fields { display: flex; flex-direction: column; gap: 6px; }
+  .schema-field {
+    display: grid; grid-template-columns: 160px 110px 1fr;
+    gap: 12px; font-size: 11.5px; padding: 6px 8px;
+    border-radius: 5px;
+  }
+  .schema-field:nth-child(even) { background: var(--bg-sub); }
+  .schema-field .f { font-family: var(--font-mono); font-weight: 600; color: var(--text); }
+  .schema-field .t { font-family: var(--font-mono); color: var(--pink); font-size: 11px; }
+  .schema-field .d { color: var(--text-2); }
+  .codeblock {
+    background: #1E1B2E; color: #E8E5F5;
+    font-family: var(--font-mono); font-size: 11.5px;
+    padding: 14px 16px; border-radius: var(--radius);
+    white-space: pre-wrap; line-height: 1.65;
+    margin-top: 12px; overflow-x: auto;
+  }
+  .codeblock .kw { color: #C7A9FF; }
+  .codeblock .str { color: #9FE1CB; }
+  .codeblock .num { color: #FAC775; }
+  .codeblock .cm { color: #7C7591; font-style: italic; }
+
+  /* 事件流 */
+  .stream-metrics {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px;
+  }
+  .stream {
+    max-height: 380px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .stream-row {
+    display: grid; grid-template-columns: 160px auto 1fr auto;
+    align-items: center; gap: 14px;
+    padding: 9px 14px; background: var(--bg-sub);
+    border-radius: var(--radius-sm); border-left: 2px solid var(--line-strong);
+    font-size: 12px; font-family: var(--font-mono);
+    animation: slideIn 0.35s ease;
+  }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  .stream-row.agent { border-left-color: var(--brand); }
+  .stream-row.feature { border-left-color: var(--info); }
+  .stream-row.content { border-left-color: var(--pink); }
+  .stream-row.token { border-left-color: var(--teal); }
+  .stream-row.audit { border-left-color: var(--warn); }
+  .stream-row.error { border-left-color: var(--danger); background: #FEF6F6; }
+  .stream-ev-name { color: var(--text); font-weight: 600; }
+  .stream-ev-type { padding: 2px 8px; border-radius: 9px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .stream-ev-desc { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .stream-ev-ts { color: var(--text-3); font-size: 11px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+  .trace {
+    background: var(--bg-sub); border-radius: var(--radius);
+    padding: 16px 18px; font-family: var(--font-mono); font-size: 11.5px;
+    line-height: 2; color: var(--text);
+  }
+  .trace-step {
+    display: grid; grid-template-columns: 22px 1fr;
+    gap: 12px; align-items: center;
+  }
+  .trace-n { width: 22px; height: 22px; border-radius: 50%; background: var(--brand); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 10.5px; }
+  .trace-code { color: var(--text-2); }
+  .trace-code b { color: var(--brand-ink); font-weight: 600; }
+
+  /* 四象限散点图容器 */
+  .quadrant-legend { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 11px; margin-top: 12px; }
+  .qi { display: flex; gap: 8px; align-items: flex-start; padding: 8px 10px; border-radius: 6px; background: var(--bg-sub); }
+  .qi .q-n { font-weight: 700; color: var(--brand-ink); min-width: 14px; }
+  .qi .q-d { color: var(--text-2); line-height: 1.45; }
+
+  /* 内联 SVG 图标 */
+  .i { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; display: inline-block; vertical-align: -2px; }
+
+  /* 页面切换动画 */
+  .view { display: none; animation: fadeIn 0.25s ease; }
+  .view.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* 响应式收窄 */
+  @media (max-width: 1200px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+    .stream-metrics { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .grid-2, .grid-2-3, .grid-3 { grid-template-columns: 1fr; }
+    .kpi-grid { grid-template-columns: 1fr; }
+    .nav-modules { display: none; }
+  }
+
+  /* ============ 埋点可视化标注工具 ============ */
+  .trk-mode { display: flex; gap: 6px; margin-bottom: 14px; padding: 5px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 10px; width: fit-content; }
+  .trk-mode-btn { padding: 7px 14px; font-size: 12px; font-weight: 500; color: var(--text-2); border-radius: 7px; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
+  .trk-mode-btn.on { background: var(--bg-hl); color: var(--brand-ink); font-weight: 600; }
+  .trk-mode-btn:not(.on):hover { color: var(--text); }
+
+  .pg-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 14px; }
+  .pg-chip { padding: 8px 14px; font-size: 12px; color: var(--text-2); font-weight: 500; border-radius: 8px; display: flex; align-items: center; gap: 8px; transition: all 0.15s; }
+  .pg-chip:hover { background: var(--bg-sub); color: var(--text); }
+  .pg-chip.on { background: var(--brand-ink); color: #fff; }
+  .pg-chip .cnt { font-size: 11px; padding: 1px 7px; background: rgba(255, 255, 255, 0.2); border-radius: 9px; font-family: var(--font-mono); font-weight: 600; }
+  .pg-chip:not(.on) .cnt { background: var(--bg-sub); color: var(--text-3); }
+
+  .trk-bar { display: flex; align-items: center; gap: 18px; padding: 12px 16px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 14px; font-size: 12px; flex-wrap: wrap; }
+  .trk-bar b { font-weight: 600; color: var(--text); }
+  .trk-bar code { font-family: var(--font-mono); font-size: 11px; padding: 3px 8px; background: var(--bg-sub); border-radius: 5px; color: var(--brand-ink); }
+  .trk-bar .sep { color: var(--text-3); }
+
+  .trk-workspace { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; }
+  .wf-panel, .pt-panel { background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 14px; }
+  .wf-panel-head, .pt-panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; font-size: 12px; }
+  .wf-panel-head .left { display: flex; align-items: center; gap: 10px; }
+  .wf-panel-head .title, .pt-panel-head .title { font-weight: 600; color: var(--text); font-size: 13px; }
+  .wf-panel-head .hint, .pt-panel-head .hint { font-size: 11px; color: var(--text-3); font-family: var(--font-mono); }
+
+  .wf-frame { background: var(--bg-sub); border-radius: var(--radius); padding: 14px; position: relative; min-height: 520px; overflow: hidden; }
+  .wf-url { font-size: 11px; color: var(--text-3); margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed var(--line-strong); display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); }
+  .wf-url .dot-r { width: 8px; height: 8px; border-radius: 50%; background: #E24B4A; }
+  .wf-url .dot-y { width: 8px; height: 8px; border-radius: 50%; background: #EF9F27; }
+  .wf-url .dot-g { width: 8px; height: 8px; border-radius: 50%; background: #97C459; }
+  .wf-url .path { margin-left: 6px; }
+
+  .wf-hdr { padding: 10px 12px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 8px; font-size: 12.5px; font-weight: 600; color: var(--text); margin-bottom: 10px; position: relative; }
+  .wf-box { background: var(--bg-elev); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; position: relative; font-size: 11px; color: var(--text-2); }
+  .wf-btn-s { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; font-size: 11px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 6px; color: var(--text-2); position: relative; }
+  .wf-btn-s.primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .wf-btn-s.danger { color: var(--danger); border-color: #F5C0C3; }
+  .wf-btn-s.success { background: var(--success-bg); color: var(--success); border-color: #9FD8B8; }
+  .wf-btn-s.reject { background: var(--danger-bg); color: var(--danger); border-color: #F5C0C3; }
+  .wf-input-s { padding: 5px 10px; font-size: 11px; background: var(--bg-sub); border: 1px solid var(--line); border-radius: 6px; color: var(--text-3); position: relative; display: inline-block; min-width: 110px; }
+  .wf-tag-s { padding: 2px 8px; font-size: 10px; background: var(--bg-hl); color: var(--brand-ink); border-radius: 10px; font-weight: 500; position: relative; display: inline-block; }
+  .wf-lbl-s { font-size: 10px; color: var(--text-3); margin-bottom: 4px; display: block; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.04em; }
+  .wf-card-s { background: var(--bg-elev); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; position: relative; }
+  .wf-card-s .ct { font-size: 11px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .wf-card-s .cd { font-size: 10px; color: var(--text-3); }
+  .wf-thumb-s { width: 100%; aspect-ratio: 9/14; border-radius: 6px; background: linear-gradient(135deg, var(--brand-100), var(--pink-bg)); position: relative; }
+  .wf-tbl-s { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+  .wf-tbl-s th { text-align: left; padding: 6px 8px; font-weight: 600; color: var(--text-3); border-bottom: 1px solid var(--line); background: var(--bg-sub); }
+  .wf-tbl-s td { padding: 6px 8px; border-bottom: 1px solid var(--line); color: var(--text-2); position: relative; }
+
+  .pt-dot {
+    position: absolute; width: 24px; height: 24px; border-radius: 50%;
+    background: var(--brand); color: #fff; font-size: 11px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 3; border: 2px solid #fff;
+    font-family: var(--font-mono);
+    box-shadow: 0 0 0 1.5px var(--brand);
+    transition: transform 0.18s, box-shadow 0.18s;
+  }
+  .pt-dot:hover { transform: scale(1.15); box-shadow: 0 0 0 4px var(--brand-100); }
+  .pt-dot.on { background: var(--danger); box-shadow: 0 0 0 4px #F5C0C3; transform: scale(1.25); z-index: 5; }
+  .pt-dot.pv { background: var(--success); box-shadow: 0 0 0 1.5px var(--success); }
+  .pt-dot.pv.on { background: var(--danger); box-shadow: 0 0 0 4px #F5C0C3; }
+  .pt-dot.ag { background: #D85A30; box-shadow: 0 0 0 1.5px #D85A30; }
+  .pt-dot.ag.on { background: var(--danger); box-shadow: 0 0 0 4px #F5C0C3; }
+  .pt-dot.ad { background: var(--warn); box-shadow: 0 0 0 1.5px var(--warn); }
+  .pt-dot.ad.on { background: var(--danger); box-shadow: 0 0 0 4px #F5C0C3; }
+
+  .pt-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: var(--text-3); padding-top: 12px; margin-top: 12px; border-top: 1px dashed var(--line-strong); }
+  .pt-legend .l-item { display: flex; align-items: center; gap: 6px; }
+  .pt-legend .l-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+  .pt-list { max-height: 620px; overflow-y: auto; padding-right: 4px; }
+  .pt-card { background: var(--bg-sub); border-radius: 8px; margin-bottom: 8px; overflow: hidden; border: 1px solid transparent; transition: all 0.15s; }
+  .pt-card.on { background: var(--bg-elev); border-color: var(--brand-200); box-shadow: 0 1px 4px rgba(109, 94, 248, 0.12); }
+  .pt-card-hd { display: grid; grid-template-columns: 30px 1fr auto; align-items: center; gap: 12px; padding: 12px 14px; cursor: pointer; user-select: none; }
+  .pt-num-s { width: 24px; height: 24px; border-radius: 50%; background: var(--brand); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); }
+  .pt-num-s.pv { background: var(--success); }
+  .pt-num-s.ag { background: #D85A30; }
+  .pt-num-s.ad { background: var(--warn); }
+  .pt-num-s.content { background: var(--pink); }
+  .pt-num-s.v1 { background: #0B7A4F; box-shadow: 0 0 0 2px #D6F2E3; }
+  .pt-num-s.v2 { background: #2E7BD4; box-shadow: 0 0 0 2px #E2EEFB; }
+  .pt-info-s { min-width: 0; }
+  .pt-ev-s { font-family: var(--font-mono); font-size: 12px; color: var(--brand-ink); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pt-when-s { font-size: 11px; color: var(--text-2); margin-top: 2px; display: flex; align-items: center; gap: 8px; }
+  .pt-when-s .text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pt-chev-s { color: var(--text-3); font-size: 10px; transition: transform 0.2s; }
+  .pt-card.on .pt-chev-s { transform: rotate(180deg); }
+  .pt-body-s { display: none; padding: 4px 14px 14px 54px; }
+  .pt-card.on .pt-body-s { display: block; }
+  .pt-fld-s { display: grid; grid-template-columns: 140px 90px 1fr; gap: 10px; font-size: 11px; padding: 5px 8px; border-radius: 4px; font-family: var(--font-mono); align-items: baseline; }
+  .pt-fld-s:nth-child(even) { background: var(--bg-sub); }
+  .pt-fld-s .fn { font-weight: 600; color: var(--text); }
+  .pt-fld-s .ft { color: var(--pink); font-size: 10.5px; }
+  .pt-fld-s .fd { color: var(--text-2); font-family: var(--font-sans); }
+  .pt-code-s { background: #1E1B2E; color: #E8E5F5; padding: 12px 14px; border-radius: 8px; font-family: var(--font-mono); font-size: 11px; line-height: 1.7; margin-top: 10px; white-space: pre; overflow-x: auto; }
+  .pt-code-s .kw { color: #C7A9FF; }
+  .pt-code-s .st { color: #9FE1CB; }
+  .pt-code-s .nm { color: #FAC775; }
+  .pt-code-s .cm { color: #7C7591; font-style: italic; }
+  .pt-badge-tag { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-family: var(--font-mono); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .pt-badge-tag.click { background: var(--bg-hl); color: var(--brand-ink); }
+  .pt-badge-tag.pv { background: var(--success-bg); color: var(--success); }
+  .pt-badge-tag.ag { background: #FAECE7; color: #712B13; }
+  .pt-badge-tag.ad { background: var(--warn-bg); color: var(--warn); }
+  .pt-badge-tag.content { background: var(--pink-bg); color: var(--pink); }
+  .pt-badge-tag.v1 { background: #D6F2E3; color: #0B7A4F; border: 1px solid #0FA871; }
+  .pt-badge-tag.v2 { background: #E2EEFB; color: #2E7BD4; border: 1px solid #2E7BD4; }
+  /* KR 归属 pill */
+  .kr-pill { display: inline-flex; align-items: center; padding: 1px 8px; margin-left: 6px; border-radius: 10px; font-size: 10px; font-weight: 700; font-family: var(--font-mono); letter-spacing: 0.02em; white-space: nowrap; }
+  .kr-pill.kr1 { background: #E8F3EB; color: #1B6B2E; }
+  .kr-pill.kr2 { background: #FBEFE0; color: #925014; }
+  .kr-pill.kr3 { background: #FCEAEA; color: #A32A2D; }
+  .kr-pill.kr4 { background: #EEEDFE; color: #4E3DE4; }
+  .kr-pill.kr5 { background: #FBEAF0; color: #8B2F56; }
+  .kr-pill.l2 { background: #F2F2F2; color: #595959; }
+  .kr-pill.l3 { background: #FEF6E3; color: #8A6300; }
+
+  .trk-dict { display: none; }
+  .trk-dict.on { display: block; }
+  .trk-annot { display: none; }
+  .trk-annot.on { display: block; }
+
+  @media (max-width: 1100px) {
+    .trk-workspace { grid-template-columns: 1fr; }
+    .wf-frame { min-height: 400px; }
+  }
+  /* ============ 体系说明横幅 ============ */
+  .system-banner {
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(135deg, #EEEDFE 0%, #E4F6EE 100%);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 20px 28px; margin-bottom: 16px;
+    position: relative; overflow: hidden;
+  }
+  .system-banner::before {
+    content: ""; position: absolute; right: -60px; top: -60px;
+    width: 220px; height: 220px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(109, 94, 248, 0.18), transparent 70%);
+  }
+  .sb-left { position: relative; z-index: 1; }
+  .sb-tag {
+    display: inline-block; padding: 3px 10px; background: var(--brand);
+    color: #fff; font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+    border-radius: 10px; letter-spacing: 0.08em; margin-bottom: 8px;
+  }
+  .sb-title { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; margin-bottom: 4px; }
+  .sb-sub { font-size: 12.5px; color: var(--text-2); }
+  .sb-right { display: flex; gap: 20px; position: relative; z-index: 1; }
+  .sb-stat { text-align: center; }
+  .sb-stat-n {
+    font-size: 28px; font-weight: 700; color: var(--brand-ink);
+    letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .sb-stat-l { font-size: 10.5px; color: var(--text-3); margin-top: 4px; font-family: var(--font-mono); }
+
+  /* ============ 受众分层 ============ */
+  .audience-strip {
+    display: flex; align-items: center; gap: 18px;
+    padding: 12px 20px; background: var(--bg-elev);
+    border: 1px solid var(--line); border-radius: var(--radius-md);
+    margin-bottom: 16px;
+  }
+  .as-label {
+    font-size: 10.5px; font-family: var(--font-mono); color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.08em; flex-shrink: 0;
+    padding-right: 18px; border-right: 1px solid var(--line);
+  }
+  .as-items { display: flex; gap: 32px; flex: 1; }
+  .as-item { display: flex; align-items: center; gap: 10px; }
+  .as-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .as-item.l1 .as-dot { background: var(--brand-ink); box-shadow: 0 0 0 3px #DED9F8; }
+  .as-item.l2 .as-dot { background: var(--brand); box-shadow: 0 0 0 3px #E9E5FC; }
+  .as-item.l3 .as-dot { background: var(--brand-300); box-shadow: 0 0 0 3px #F2EFFE; }
+  .as-name { font-size: 12.5px; font-weight: 600; color: var(--text); }
+  .as-desc { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+
+  /* ============ 4 终极指标大卡 ============ */
+  .ult-head {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 12px; padding: 0 4px;
+  }
+  .ult-head h3 { font-size: 16px; font-weight: 600; color: var(--text); }
+  .ult-head p { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+  .qtag {
+    padding: 5px 12px; background: var(--bg-elev); border: 1px solid var(--line);
+    border-radius: 12px; font-family: var(--font-mono); font-size: 11px; color: var(--text-2);
+  }
+
+  .ult-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+  @media (max-width: 1200px) { .ult-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .ult {
+    background: var(--bg-elev); border: 1px solid var(--line);
+    border-radius: 14px; padding: 18px; position: relative;
+    cursor: pointer; transition: all 0.2s;
+    overflow: hidden;
+  }
+  .ult::before {
+    content: ""; position: absolute; top: 0; right: 0;
+    width: 120px; height: 120px; pointer-events: none;
+    background: radial-gradient(circle, var(--cb), transparent 70%);
+    opacity: 0.6;
+  }
+  .ult:hover { border-color: var(--c); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.04); }
+
+  .ult-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; position: relative; z-index: 1; }
+  .ult-tag {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+    color: var(--c); letter-spacing: 0.08em;
+    padding: 3px 8px; background: var(--cb); border-radius: 8px;
+  }
+  .ult-l1 {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+    color: var(--text-3); padding: 3px 7px; border: 1px solid var(--line); border-radius: 6px;
+  }
+  .ult-name { font-size: 13px; color: var(--text-2); margin-bottom: 4px; position: relative; z-index: 1; }
+  .ult-value {
+    font-size: 40px; font-weight: 700; color: var(--text);
+    letter-spacing: -0.03em; line-height: 1;
+    display: flex; align-items: baseline; gap: 4px;
+    margin-bottom: 8px; position: relative; z-index: 1;
+  }
+  .ult-unit { font-size: 16px; color: var(--text-2); font-weight: 500; }
+  .ult-delta { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 11px; position: relative; z-index: 1; }
+  .ult-pill {
+    padding: 2px 7px; border-radius: 8px; font-family: var(--font-mono); font-weight: 600;
+    font-size: 10.5px;
+  }
+  .ult-pill.up { background: var(--success-bg); color: var(--success); }
+  .ult-target { color: var(--text-3); font-size: 10.5px; }
+  .ult-formula {
+    display: flex; flex-direction: column; gap: 2px;
+    padding: 8px 10px; background: var(--bg-sub); border-radius: 6px;
+    font-size: 10.5px; color: var(--text-2); line-height: 1.4;
+    margin-bottom: 8px; position: relative; z-index: 1;
+  }
+  .ult-num, .ult-den { text-align: center; }
+  .ult-num { color: var(--text); font-weight: 500; }
+  .ult-bar { height: 1px; background: var(--line-strong); margin: 3px 0; }
+  .ult-den { color: var(--text-3); }
+  .ult-narr {
+    font-size: 11px; color: var(--c); font-style: italic;
+    line-height: 1.4; margin-bottom: 6px;
+    padding-top: 8px; border-top: 1px dashed var(--line);
+    position: relative; z-index: 1;
+  }
+  .ult-spark { width: 100%; height: 26px; display: block; margin-top: 2px; position: relative; z-index: 1; }
+
+  /* ============ 阶段地图 ============ */
+  .stage-map { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; padding: 10px 0; }
+  .stage-node {
+    padding: 14px 12px; border-radius: 10px; text-align: center;
+    border: 1px solid var(--line); background: var(--bg-elev);
+    position: relative;
+  }
+  .stage-node.done { background: var(--success-bg); border-color: var(--success); }
+  .stage-node.progress { background: var(--warn-bg); border-color: var(--warn); }
+  .stage-node.pending { background: var(--bg-sub); }
+  .stage-node-num {
+    width: 26px; height: 26px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 11px; font-family: var(--font-mono);
+    margin-bottom: 8px; color: #fff;
+  }
+  .stage-node.done .stage-node-num { background: var(--success); }
+  .stage-node.progress .stage-node-num { background: var(--warn); }
+  .stage-node.pending .stage-node-num { background: var(--text-3); }
+  .stage-node-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .stage-node-status { font-size: 10px; font-family: var(--font-mono); color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; }
+  .stage-node.done .stage-node-status { color: var(--success); }
+  .stage-node.progress .stage-node-status { color: var(--warn); }
+
+  /* ============ 指标体系说明 ============ */
+  .card-explain {
+    background: linear-gradient(180deg, var(--bg-hl) 0%, var(--bg-elev) 100%);
+    border: 1px solid var(--brand-200);
+  }
+  .explain-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding: 6px 0; }
+  .explain-item { display: flex; gap: 12px; }
+  .explain-num {
+    width: 32px; height: 32px; border-radius: 50%; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; flex-shrink: 0;
+    font-family: var(--font-mono);
+  }
+  .explain-t { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .explain-d { font-size: 11.5px; color: var(--text-2); line-height: 1.55; }
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-logo">
+      <div class="brand-dot"><span></span></div>
+    </div>
+    <div>
+      <div class="brand-name">TripFlow</div>
+      <div class="brand-slogan">轻松创作，全球传播</div>
+    </div>
+  </div>
+
+  <nav class="nav-modules">
+    <button class="nav-item"><svg class="i" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01z"/></svg>内容创作</button>
+    <button class="nav-item"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9l6 6M15 9l-6 6"/></svg>智能剪辑</button>
+    <button class="nav-item"><svg class="i" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>发布管理</button>
+    <button class="nav-item active"><svg class="i" viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 4 4 5-5"/></svg>数据洞察</button>
+    <button class="nav-item"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33h.01a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v.01a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>管理员</button>
+  </nav>
+
+  <div class="topbar-right">
+    <span style="color: var(--brand); font-size: 12px; font-weight: 500; cursor: pointer;">使用反馈</span>
+    <div class="env-switch">
+      <span class="env-dot"><span class="env-dot-circle"></span>FAT</span>
+      <span class="env-dot on"><span class="env-dot-circle"></span>PROD</span>
+    </div>
+    <button class="org-select">
+      <svg class="i" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      国际公域 / 批量组
+      <svg class="i" viewBox="0 0 24 24" style="width:10px;height:10px"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="user-info">
+      <span style="font-size: 12.5px;">Ellen Ji <span style="color: var(--text-3);">(纪鸣飞)</span></span>
+      <div class="avatar">EJ</div>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="count">15</div>
+      <div class="title">Agent 矩阵</div>
+    </div>
+    <div class="sidebar-list">
+      <div class="agent-item active" data-agent="global">
+        <div class="agent-avatar" style="background: var(--brand-50);">📊</div>
+        <div class="agent-meta">
+          <div class="agent-name">全部 Agent</div>
+          <div class="agent-role">指标总览</div>
+        </div>
+      </div>
+      <div class="agent-item" data-agent="lucy">
+        <div class="agent-avatar" style="background: #FBEAE0;">👷‍♀️</div>
+        <div class="agent-meta"><div class="agent-name">Lucy</div><div class="agent-role">爆款视频抓取分析</div></div>
+      </div>
+      <div class="agent-item" data-agent="frank">
+        <div class="agent-avatar" style="background: #E4F0FA;">👮</div>
+        <div class="agent-meta"><div class="agent-name">Frank</div><div class="agent-role">成片审核法务</div></div>
+      </div>
+      <div class="agent-item" data-agent="chloe">
+        <div class="agent-avatar" style="background: #FDEAF0;">👧</div>
+        <div class="agent-meta"><div class="agent-name">Chloe</div><div class="agent-role">竞品账号监控</div></div>
+      </div>
+      <div class="agent-item" data-agent="stephen">
+        <div class="agent-avatar" style="background: #E4F0FA;">🧑‍⚕️</div>
+        <div class="agent-meta"><div class="agent-name">Stephen</div><div class="agent-role">脚本合规审核助手</div></div>
+      </div>
+      <div class="agent-item" data-agent="isabella">
+        <div class="agent-avatar" style="background: #FBEAE0;">👩‍🦰</div>
+        <div class="agent-meta"><div class="agent-name">Isabella</div><div class="agent-role">意铁本地化小助手</div></div>
+      </div>
+      <div class="agent-item" data-agent="lucia">
+        <div class="agent-avatar" style="background: #FBEAE0;">💁‍♀️</div>
+        <div class="agent-meta"><div class="agent-name">Lucía</div><div class="agent-role">西班牙语本地化</div></div>
+      </div>
+      <div class="agent-item" data-agent="valeria">
+        <div class="agent-avatar" style="background: #FFF3E0;">🧑‍💼</div>
+        <div class="agent-meta"><div class="agent-name">Valeria</div><div class="agent-role">西铁脚本复刻助手</div></div>
+      </div>
+      <div class="agent-item" data-agent="camila">
+        <div class="agent-avatar" style="background: #F0EAFB;">👩‍🎨</div>
+        <div class="agent-meta"><div class="agent-name">Camila</div><div class="agent-role">西铁开头创作助手</div></div>
+      </div>
+      <div class="agent-item" data-agent="jason">
+        <div class="agent-avatar" style="background: #FFF3E0;">🧑‍🎓</div>
+        <div class="agent-meta"><div class="agent-name">Jason</div><div class="agent-role">英铁脚本复刻助手</div></div>
+      </div>
+      <div class="agent-item" data-agent="gulia">
+        <div class="agent-avatar" style="background: #FFF3E0;">🙋‍♀️</div>
+        <div class="agent-meta"><div class="agent-name">Gulia</div><div class="agent-role">意铁脚本复刻助手</div></div>
+      </div>
+    </div>
+    <div class="sidebar-collapse" id="sidebarPin">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      <span class="pin-label">固定展开</span>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+
+      <div class="page-header">
+        <div class="page-title-group">
+          <h1>
+            数据洞察
+            <span class="title-tag"><span class="title-tag-dot"></span>Insights Center</span>
+          </h1>
+          <div class="page-subtitle">
+            <span>实时监测</span><span class="dot"></span>
+            <span>多维归因</span><span class="dot"></span>
+            <span>智能告警</span><span class="dot"></span>
+            <span>三板块 · 四层架构 · 120+ 指标</span>
+          </div>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-ghost"><svg class="i" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>导出</button>
+          <button class="btn btn-ghost"><svg class="i" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>刷新</button>
+          <button class="btn btn-primary"><svg class="i" viewBox="0 0 24 24" style="stroke:#fff"><path d="M12 5v14M5 12h14"/></svg>新建看板</button>
+        </div>
+      </div>
+
+      <nav class="subtabs">
+        <button class="subtab active" data-view="north">
+          <svg class="i" viewBox="0 0 24 24"><path d="M12 2v6M4.93 10.93l4.24 4.24M2 18h6M15.07 10.93l-4.24 4.24M22 18h-6M12 22v-6"/></svg>
+          北极星 <span class="badge">L1</span>
+        </button>
+        <button class="subtab" data-view="agents">
+          <svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><circle cx="17" cy="9" r="3"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2M16 14a3 3 0 013 3v2"/></svg>
+          Agent 监控 <span class="badge">15</span>
+        </button>
+        <button class="subtab" data-view="frontend">
+          <svg class="i" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9h20"/></svg>
+          前端使用 <span class="badge">5</span>
+        </button>
+        <button class="subtab" data-view="tracking">
+          <svg class="i" viewBox="0 0 24 24"><path d="M9 11H5a2 2 0 00-2 2v7h6V13a2 2 0 00-2-2zM19 3h-4a2 2 0 00-2 2v15h8V5a2 2 0 00-2-2z"/></svg>
+          埋点字典 <span class="badge">28</span>
+        </button>
+        <button class="subtab" data-view="dualtrack">
+          <svg class="i" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M3 16v3a2 2 0 002 2h3M16 21h3a2 2 0 002-2v-3"/></svg>
+          双轨对照 <span class="badge" style="background: var(--success); color: #fff;">V2</span>
+        </button>
+        <button class="subtab" data-view="aarrr">
+          <svg class="i" viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 4 4 5-5"/></svg>
+          AARRR <span class="badge" style="background: var(--success); color: #fff;">V2</span>
+        </button>
+        <button class="subtab" data-view="stream">
+          <svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19" cy="18" r="2" fill="currentColor"/></svg>
+          事件流 <span class="badge" style="background: var(--success); color: #fff;">LIVE</span>
+        </button>
+      </nav>
+
+      <section class="view active" data-view="north">
+
+        <!-- ============ 体系说明横幅 ============ -->
+        <div class="system-banner">
+          <div class="sb-left">
+            <div class="sb-tag">INDEX SYSTEM · V2</div>
+            <div class="sb-title">TripFlow 双轨指标体系</div>
+            <div class="sb-sub">三受众分层 · 结果轨 × 过程轨 · 4 终极指标 · Q2/Q3/Q4 节奏</div>
+          </div>
+          <div class="sb-right">
+            <div class="sb-stat"><div class="sb-stat-n">4</div><div class="sb-stat-l">终极指标</div></div>
+            <div class="sb-stat"><div class="sb-stat-n">12</div><div class="sb-stat-l">配对双轨</div></div>
+            <div class="sb-stat"><div class="sb-stat-n">120+</div><div class="sb-stat-l">过程指标</div></div>
+            <div class="sb-stat"><div class="sb-stat-n">28</div><div class="sb-stat-l">埋点事件</div></div>
+          </div>
+        </div>
+
+        <!-- ============ 受众分层 ============ -->
+        <div class="audience-strip">
+          <div class="as-label">三受众 · 不同切片</div>
+          <div class="as-items">
+            <div class="as-item l1">
+              <span class="as-dot"></span>
+              <div>
+                <div class="as-name">L1 · BG 高层</div>
+                <div class="as-desc">4 终极指标 · 季度节奏 · 规模叙事</div>
+              </div>
+            </div>
+            <div class="as-item l2">
+              <span class="as-dot"></span>
+              <div>
+                <div class="as-name">L2 · 直属老板</div>
+                <div class="as-desc">双轨对照 · 周节奏 · 真实效果</div>
+              </div>
+            </div>
+            <div class="as-item l3">
+              <span class="as-dot"></span>
+              <div>
+                <div class="as-name">L3 · 协作团队</div>
+                <div class="as-desc">120+ 过程指标 · 日节奏 · 埋点落地</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ 4 终极指标大卡 ============ -->
+        <div class="ult-head">
+          <div>
+            <h3>4 终极指标 · L1 BG 高层</h3>
+            <p>季度汇报核心口径 · 点击任一卡查看埋点依赖和双轨对照</p>
+          </div>
+          <span class="qtag">Q2 2026 · Week 8</span>
+        </div>
+
+        <div class="ult-grid">
+          <div class="ult" style="--c: #0FA871; --cb: #E4F6EE;" data-metric="penetration">
+            <div class="ult-top">
+              <span class="ult-tag">ADOPTION RATE</span>
+              <span class="ult-l1">L1</span>
+            </div>
+            <div class="ult-name">AI 渗透率</div>
+            <div class="ult-value tabular">42<span class="ult-unit">%</span></div>
+            <div class="ult-delta">
+              <span class="ult-pill up">↑ +30pp</span>
+              <span class="ult-target">Q2 目标 55% · 距离 13pp</span>
+            </div>
+            <div class="ult-formula">
+              <span class="ult-num">首次采纳员工数</span>
+              <span class="ult-bar"></span>
+              <span class="ult-den">BG 总员工数</span>
+            </div>
+            <div class="ult-narr">"本季度 42% 员工至少产出并采纳一次 AI 内容"</div>
+            <svg class="ult-spark" viewBox="0 0 200 30" preserveAspectRatio="none">
+              <path d="M0,26 L20,24 L40,20 L60,17 L80,14 L100,11 L120,9 L140,8 L160,6 L180,5 L200,4" stroke="#0FA871" stroke-width="1.8" fill="none"/>
+              <path d="M0,26 L20,24 L40,20 L60,17 L80,14 L100,11 L120,9 L140,8 L160,6 L180,5 L200,4 L200,30 L0,30 Z" fill="#0FA871" opacity="0.1"/>
+            </svg>
+          </div>
+
+          <div class="ult" style="--c: #D4537E; --cb: #FBEAF0;" data-metric="time">
+            <div class="ult-top">
+              <span class="ult-tag">TIME SAVED</span>
+              <span class="ult-l1">L1</span>
+            </div>
+            <div class="ult-name">AI 节省人工时间</div>
+            <div class="ult-value tabular">2.8<span class="ult-unit">万 h</span></div>
+            <div class="ult-delta">
+              <span class="ult-pill up">↑ +166%</span>
+              <span class="ult-target">折合 13 FTE · ¥336 万</span>
+            </div>
+            <div class="ult-formula">
+              <span class="ult-num">Σ (基线 − AI 实测) × 任务次数</span>
+            </div>
+            <div class="ult-narr">"AI 每季度为团队节省 2.8 万工时"</div>
+            <svg class="ult-spark" viewBox="0 0 200 30" preserveAspectRatio="none">
+              <path d="M0,28 L20,26 L40,22 L60,18 L80,13 L100,10 L120,7 L140,5 L160,4 L180,3 L200,2" stroke="#D4537E" stroke-width="1.8" fill="none"/>
+            </svg>
+          </div>
+
+          <div class="ult" style="--c: #2E7BD4; --cb: #E4F0FA;" data-metric="auto">
+            <div class="ult-top">
+              <span class="ult-tag">AUTO COVERAGE</span>
+              <span class="ult-l1">L1</span>
+            </div>
+            <div class="ult-name">AI 自动化链路覆盖率</div>
+            <div class="ult-value tabular">33<span class="ult-unit">%</span></div>
+            <div class="ult-delta">
+              <span class="ult-pill up">↑ +28pp</span>
+              <span class="ult-target">6 阶段中 2 段已自主</span>
+            </div>
+            <div class="ult-formula">
+              <span class="ult-num">无人工介入阶段数</span>
+              <span class="ult-bar"></span>
+              <span class="ult-den">6 业务阶段</span>
+            </div>
+            <div class="ult-narr">"核心业务 6 阶段中 2 段已 Agent 端到端自主"</div>
+            <svg class="ult-spark" viewBox="0 0 200 30" preserveAspectRatio="none">
+              <path d="M0,28 L20,27 L40,25 L60,22 L80,19 L100,16 L120,13 L140,10 L160,8 L180,6 L200,5" stroke="#2E7BD4" stroke-width="1.8" fill="none"/>
+            </svg>
+          </div>
+
+          <div class="ult" style="--c: #EA9E17; --cb: #FBEEDA;" data-metric="exposure">
+            <div class="ult-top">
+              <span class="ult-tag">REAL EXPOSURE</span>
+              <span class="ult-l1">L1</span>
+            </div>
+            <div class="ult-name">业务对 AI 真实暴露率</div>
+            <div class="ult-value tabular">54<span class="ult-unit">%</span></div>
+            <div class="ult-delta">
+              <span class="ult-pill up">↑ +46pp</span>
+              <span class="ult-target">每 100 动作 54 个被赋能</span>
+            </div>
+            <div class="ult-formula">
+              <span class="ult-num">有 AI 交互的业务动作数</span>
+              <span class="ult-bar"></span>
+              <span class="ult-den">业务总动作数</span>
+            </div>
+            <div class="ult-narr">"每 100 个业务决策, 54 个被 AI 赋能过"</div>
+            <svg class="ult-spark" viewBox="0 0 200 30" preserveAspectRatio="none">
+              <path d="M0,28 L20,27 L40,24 L60,20 L80,16 L100,13 L120,10 L140,8 L160,6 L180,5 L200,4" stroke="#EA9E17" stroke-width="1.8" fill="none"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- ============ 演进趋势图 ============ -->
+        <div class="card" style="margin-bottom: 16px;">
+          <div class="card-header">
+            <div class="card-title">4 终极指标 · 季度演进轨迹 <span class="tag tag-brand">Q2 → Q4 → Vision</span></div>
+            <div class="card-meta">现状 → Q2 末 → Q3 末 → Q4 末 → Vision</div>
+          </div>
+          <div class="chart-wrap h-240"><canvas id="ultimateChart"></canvas></div>
+        </div>
+
+        <!-- ============ 双轨对照 + 业务阶段拆解 ============ -->
+        <div class="grid-2" style="gap: 14px; margin-bottom: 16px;">
+          <div class="card" style="border-left: 4px solid var(--success);">
+            <div class="card-header">
+              <div class="card-title" style="color: var(--success);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: -2px; margin-right: 4px;"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>
+                本周结果轨 · 对外叙事
+              </div>
+              <div class="card-meta">规模 + 价值 + 可汇报</div>
+            </div>
+            <ul class="insight-list">
+              <li class="insight-item good">
+                <div class="mark">1</div>
+                <div><b>AI 节省 2.8 万工时</b> · 相当于 13 个 FTE · AI 让运营从"执行者"变成"策略者"</div>
+              </li>
+              <li class="insight-item good">
+                <div class="mark">2</div>
+                <div><b>42% BG 员工每周用 AI</b> · 本季度比上季度增加 30 个百分点</div>
+              </li>
+              <li class="insight-item good">
+                <div class="mark">3</div>
+                <div><b>爆款抓取 + 合规审核已自主</b> · 两个阶段人工介入 &lt; 1 次/成品</div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="card" style="border-left: 4px solid var(--brand);">
+            <div class="card-header">
+              <div class="card-title" style="color: var(--brand);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: -2px; margin-right: 4px;"><path d="M3 12l3-3 5 5 8-8 2 2"/></svg>
+                本周过程轨 · 需要关注
+              </div>
+              <div class="card-meta">真实效果 + 瓶颈 + 告警</div>
+            </div>
+            <ul class="insight-list">
+              <li class="insight-item risk">
+                <div class="mark">1</div>
+                <div><b>Adopt → 实际使用率 74%</b> · 季度抽样显示 26% 的 adopt 标记没有进入真实业务, 需复核</div>
+              </li>
+              <li class="insight-item risk">
+                <div class="mark">2</div>
+                <div><b>基线老化风险</b> · Q2 初测的人工基线已过 6 周, 用户熟练度提升可能导致节省时间虚高</div>
+              </li>
+              <li class="insight-item risk">
+                <div class="mark">3</div>
+                <div><b>Benny B-Roll 修改距离 42%</b> · 超过 30% 警戒线, 本周启动 SOP 迭代</div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ============ 业务阶段映射 ============ -->
+        <div class="card" style="margin-bottom: 16px;">
+          <div class="card-header">
+            <div class="card-title">TripFlow 6 阶段 · 自动化进度</div>
+            <div class="card-meta">决定 AI 自动化链路覆盖率 · Q2 2 / 6 = 33%</div>
+          </div>
+          <div class="stage-map" id="stageMap"></div>
+        </div>
+
+        <!-- ============ 指标体系说明 ============ -->
+        <div class="card card-explain" style="margin-bottom: 16px;">
+          <div class="card-header">
+            <div class="card-title">📘 本指标体系如何运作</div>
+            <div class="card-meta">两分钟读懂</div>
+          </div>
+          <div class="explain-grid">
+            <div class="explain-item">
+              <div class="explain-num" style="background: var(--success);">1</div>
+              <div>
+                <div class="explain-t">同一套埋点 · 双向加工</div>
+                <div class="explain-d">所有数字共用 23 个埋点事件 · 结果轨做"大数字叙事", 过程轨做"小颗粒诊断" · 不允许两套埋点</div>
+              </div>
+            </div>
+            <div class="explain-item">
+              <div class="explain-num" style="background: var(--brand);">2</div>
+              <div>
+                <div class="explain-t">4 终极指标口径可审计</div>
+                <div class="explain-d">每个分子/分母都能回源到具体埋点 · 被质疑时可 1 秒追溯 · TripBI 每季度独立复算</div>
+              </div>
+            </div>
+            <div class="explain-item">
+              <div class="explain-num" style="background: var(--pink);">3</div>
+              <div>
+                <div class="explain-t">防作弊三规则</div>
+                <div class="explain-d">① 双轨比值 &gt; 20pp 异常告警 ② 季度 adopt 抽样复检 ③ 第三方 TripBI 独立口径</div>
+              </div>
+            </div>
+            <div class="explain-item">
+              <div class="explain-num" style="background: var(--warn);">4</div>
+              <div>
+                <div class="explain-t">Q2/Q3/Q4 分阶段落地</div>
+                <div class="explain-d">Q2 手工测算可汇报 → Q3 双轨自动对照 → Q4 4 指标 SQL 自动 + TripBI 审计</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <section class="view" data-view="agents">
+        <div class="alert-banner">
+          <svg class="i" viewBox="0 0 24 24" style="color: var(--danger);"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/></svg>
+          <span class="sev">P0 告警</span>
+          <span class="msg">Benny Agent 采纳率 44%,环比 −22pp,已连续 2 日低于警戒线</span>
+          <span class="ts">3 分钟前</span>
+          <button class="btn btn-primary">查看详情</button>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="kpi-label">15 Agent 平均采纳率</div>
+            <div class="kpi-value">62<span class="unit">%</span></div>
+            <div class="kpi-delta"><span class="kpi-delta-pill up">↑ 4pp</span><span class="kpi-delta-target">目标 &gt;60%</span></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">调用成功率</div>
+            <div class="kpi-value">99.4<span class="unit">%</span></div>
+            <div class="kpi-delta"><span class="kpi-delta-pill up">稳定</span><span class="kpi-delta-target">目标 &gt;99%</span></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">今日总调用</div>
+            <div class="kpi-value tabular">3,847</div>
+            <div class="kpi-delta"><span class="kpi-delta-pill up">↑ 12%</span><span class="kpi-delta-target">vs 昨日</span></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">今日 Token 成本</div>
+            <div class="kpi-value">$48.20</div>
+            <div class="kpi-delta"><span class="kpi-delta-pill down">超预算 15%</span><span class="kpi-delta-target">日预算 $42</span></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 16px;">
+          <div class="card-header">
+            <div class="card-title">15 Agent 排行榜 <span class="tag tag-brand">按采纳率排序</span></div>
+            <div class="card-meta">T+5 min · 点击行查看详情</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Agent</th>
+                  <th>业务线</th>
+                  <th style="min-width: 170px;">采纳率</th>
+                  <th>P95 延迟</th>
+                  <th>成功率</th>
+                  <th>Token/次</th>
+                  <th>今日调用</th>
+                  <th>埋点状态</th>
+                </tr>
+              </thead>
+              <tbody id="agentTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="grid-2-3">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Agent 详情 · Benny (B-Roll 助手) <span class="tag tag-danger">P0</span></div></div>
+            <div class="kpi-grid" style="grid-template-columns: repeat(2, 1fr);">
+              <div class="kpi"><div class="kpi-label">采纳率 · 7 日</div><div class="kpi-value" style="color: var(--danger);">44<span class="unit">%</span></div><div class="kpi-delta"><span class="kpi-delta-pill down">↓ 22pp</span></div></div>
+              <div class="kpi"><div class="kpi-label">编辑距离</div><div class="kpi-value" style="color: var(--warn);">42<span class="unit">%</span></div><div class="kpi-delta"><span class="kpi-delta-pill down">警戒 30%</span></div></div>
+              <div class="kpi"><div class="kpi-label">利益点植入率</div><div class="kpi-value">76<span class="unit">%</span></div><div class="kpi-delta"><span class="kpi-delta-target">目标 80%</span></div></div>
+              <div class="kpi"><div class="kpi-label">P95 延迟</div><div class="kpi-value">3.2<span class="unit">s</span></div><div class="kpi-delta"><span class="kpi-delta-pill up">正常</span></div></div>
+            </div>
+            <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 11.5px; color: var(--text-2); font-family: var(--font-mono);">
+              触发链路: <b style="color: var(--brand-ink);">feature.click</b>(name='ai.broll.generate') → <b style="color: var(--brand-ink);">agent.invoke</b>(agent_id='benny') → <b style="color: var(--brand-ink);">agent.output.rate</b>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">近期 BadCase</div></div>
+            <ul class="insight-list" style="font-size: 12px;">
+              <li class="insight-item"><div class="mark">1</div><div>利益点"价格"未被植入,B-Roll 生成的画面与 A-Roll 不连贯</div></li>
+              <li class="insight-item"><div class="mark">2</div><div>中文脚本生成英文 B-Roll 描述,语言检测机制失效</div></li>
+              <li class="insight-item"><div class="mark">3</div><div>Few-shot 示例过期,未反映最新爆款 B-Roll 模式</div></li>
+            </ul>
+            <button class="btn btn-ghost" style="width: 100%; justify-content: center; margin-top: 12px;">打开 Dify 编辑 Prompt →</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" data-view="frontend">
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-label">DAU</div><div class="kpi-value tabular">47</div><div class="kpi-delta"><span class="kpi-delta-pill up">↑ 12%</span><span class="kpi-delta-target">目标用户 58</span></div></div>
+          <div class="kpi"><div class="kpi-label">DAU / WAU 粘性</div><div class="kpi-value">68<span class="unit">%</span></div><div class="kpi-delta"><span class="kpi-delta-pill up">&gt;50% 良好</span></div></div>
+          <div class="kpi"><div class="kpi-label">平均会话时长</div><div class="kpi-value">28<span class="unit">min</span></div><div class="kpi-delta"><span class="kpi-delta-target">15-40 合理区间</span></div></div>
+          <div class="kpi"><div class="kpi-label">D7 新用户留存</div><div class="kpi-value">44<span class="unit">%</span></div><div class="kpi-delta"><span class="kpi-delta-pill up">&gt;40% 达标</span></div></div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom: 16px;">
+          <div class="card">
+            <div class="card-header"><div class="card-title">5 大模块时间分布 <span class="tag tag-brand">L3</span></div></div>
+            <div class="chart-wrap h-200"><canvas id="moduleDonut"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">渗透率 × 频次象限</div></div>
+            <div class="chart-wrap h-200"><canvas id="quadrant"></canvas></div>
+            <div class="quadrant-legend">
+              <div class="qi"><span class="q-n">①</span><span class="q-d"><b>高渗透高频</b> · 一键爬取、AI 仿写(持续优化)</span></div>
+              <div class="qi"><span class="q-n">②</span><span class="q-d"><b>高渗透低频</b> · 视频下载、排期(观察)</span></div>
+              <div class="qi"><span class="q-n">③</span><span class="q-d"><b>低渗透高频</b> · 竞品监控(推广)</span></div>
+              <div class="qi"><span class="q-n">④</span><span class="q-d"><b>低渗透低频</b> · 素材搜索(诊断)</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 16px;">
+          <div class="card-header">
+            <div class="card-title">一键爬取漏斗 <span class="tag tag-teal">整体转化 66%</span></div>
+            <div class="card-meta">核心功能 · 近 7 日</div>
+          </div>
+          <div class="funnel">
+            <div class="funnel-step"><div class="funnel-bar" style="height: 100%;">100%<br /><span style="font-size: 10px; font-weight: 400; opacity: 0.85; margin-top: 4px; display: block;">482 次</span></div><div class="funnel-lbl">进入爬取页</div></div>
+            <div class="funnel-step"><div class="funnel-bar step-2" style="height: 92%;">92%<br /><span style="font-size: 10px; font-weight: 400; opacity: 0.85; margin-top: 4px; display: block;">443 次</span></div><div class="funnel-lbl">输入关键词 <span class="funnel-drop">− 8%</span></div></div>
+            <div class="funnel-step"><div class="funnel-bar step-3" style="height: 80%;">80%<br /><span style="font-size: 10px; font-weight: 400; opacity: 0.85; margin-top: 4px; display: block;">386 次</span></div><div class="funnel-lbl">点击开始 <span class="funnel-drop">− 13%</span></div></div>
+            <div class="funnel-step"><div class="funnel-bar step-4" style="height: 66%;">66%<br /><span style="font-size: 10px; font-weight: 400; opacity: 0.85; margin-top: 4px; display: block;">318 次</span></div><div class="funnel-lbl">查看结果 <span class="funnel-drop">− 16%</span></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">模块渗透率 <span class="tag tag-brand">L2 · 周</span></div></div>
+          <div id="moduleList"></div>
+        </div>
+      </section>
+
+      <section class="view" data-view="tracking">
+        <div class="trk-mode" id="trkMode">
+          <button class="trk-mode-btn on" data-mode="annot">
+            <svg class="i" viewBox="0 0 24 24"><path d="M15 3h6v6M14 10l7-7M9 21H3v-6M10 14l-7 7"/></svg>
+            按页面标注 <span style="font-size: 11px; font-family: var(--font-mono); opacity: 0.7;">6 页 · 59 点</span>
+          </button>
+          <button class="trk-mode-btn" data-mode="dict">
+            <svg class="i" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+            按事件字典 <span style="font-size: 11px; font-family: var(--font-mono); opacity: 0.7;">28 事件</span>
+          </button>
+        </div>
+
+        <div class="trk-annot on" id="trkAnnot">
+          <div class="pg-chips" id="pgChips"></div>
+
+          <div class="trk-bar">
+            <span>Path <code id="pgPath">/content/scraper</code></span>
+            <span class="sep">·</span>
+            <span>page_id <code id="pgId">scraper.hub</code></span>
+            <span class="sep">·</span>
+            <span>本页埋点 <b id="pgCount">10</b> 个</span>
+            <span class="sep">·</span>
+            <span>全站合计 <b>59</b> 个 / <b>6</b> 页</span>
+            <span style="margin-left: auto; color: var(--text-3); font-family: var(--font-mono); font-size: 11px;">点击徽章或列表项联动 →</span>
+          </div>
+
+          <div class="trk-workspace">
+            <div class="wf-panel">
+              <div class="wf-panel-head">
+                <div class="left">
+                  <div class="title">UI 线框图</div>
+                  <span class="tag tag-brand">按编号对应右侧清单</span>
+                </div>
+                <span class="hint" id="wfHint">scraper.hub · 10 点</span>
+              </div>
+              <div class="wf-frame" id="wfFrame"></div>
+              <div class="pt-legend">
+                <span class="l-item"><span class="l-dot" style="background: var(--success);"></span>page.view / page.leave</span>
+                <span class="l-item"><span class="l-dot" style="background: var(--brand);"></span>feature.click</span>
+                <span class="l-item"><span class="l-dot" style="background: #D85A30;"></span>agent.* 级联</span>
+                <span class="l-item"><span class="l-dot" style="background: var(--warn);"></span>audit.* / content.*</span>
+                <span class="l-item"><span class="l-dot" style="background: #0B7A4F;"></span>★★ V1 (Q2 必上)</span>
+                <span class="l-item"><span class="l-dot" style="background: #2E7BD4;"></span>★ V2 (Q3 L3 支撑)</span>
+              </div>
+            </div>
+
+            <div class="pt-panel">
+              <div class="pt-panel-head">
+                <div class="title">埋点清单 <span style="color: var(--text-3); font-weight: 400; margin-left: 4px;" id="lstHead">10 个</span></div>
+                <span class="hint">点击展开 Schema</span>
+              </div>
+              <div class="pt-list" id="ptList"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="trk-dict" id="trkDict">
+          <div class="chip-group" id="chipGroup">
+            <button class="chip on" data-cat="all">全部 <span class="n">28</span></button>
+            <button class="chip" data-cat="v1" style="background: var(--success-bg); color: var(--success); border-color: var(--success);">★★ V1 新增 · Q2 必上 <span class="n">5</span></button>
+            <button class="chip" data-cat="v2" style="background: #E2EEFB; color: #2E7BD4; border-color: #2E7BD4;">★ V2 新增 · Q3 L3 支撑 <span class="n">5</span></button>
+            <button class="chip" data-cat="session">会话 <span class="n">3</span></button>
+            <button class="chip" data-cat="page">页面 <span class="n">2</span></button>
+            <button class="chip" data-cat="feature">功能点击 <span class="n">1</span></button>
+            <button class="chip" data-cat="agent">Agent 调用 <span class="n">4</span></button>
+            <button class="chip" data-cat="content">内容生命周期 <span class="n">5</span></button>
+            <button class="chip" data-cat="audit">审核决策 <span class="n">2</span></button>
+            <button class="chip" data-cat="token">Token <span class="n">1</span></button>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">埋点事件字典 <span class="tag tag-brand" id="chipCount">共 28 事件</span></div>
+              <div class="card-meta">点击卡片展开 Schema · 含公共字段 event_id / user_id / session_id / ts / platform / <b style="color: var(--success);">project_id</b> / <b style="color: var(--success);">bu_code</b> · ★★ V1 Q2 必上 · ★ V2 Q3 补齐</div>
+            </div>
+            <div id="schemaList"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" data-view="dualtrack">
+        <!-- 说明 -->
+        <div style="background: linear-gradient(90deg, var(--success-bg) 0%, var(--bg-hl) 100%); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 20px; border-left: 4px solid var(--success);">
+          <div style="font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px;">双轨指标体系 · 开发侧视图</div>
+          <div style="font-size: 12.5px; color: var(--text-2); line-height: 1.6;">
+            结果轨 (左, 绿色) 是给老板看的规模叙事 · 过程轨 (右, 紫色) 是给懂行人看的真实效果 · 两轨必须用同一套埋点驱动 · 开发的职责是保证左右两列的每个数字都能追溯到同一个埋点事件。
+          </div>
+        </div>
+
+        <!-- KPI 双轨概览 -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px;">
+          <div class="card" style="border-left: 4px solid var(--success);">
+            <div class="card-header">
+              <div class="card-title" style="color: var(--success);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: -2px;"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>
+                结果轨 · Outcome
+              </div>
+              <div class="card-meta">对老板 · 规模叙事 · 6 指标</div>
+            </div>
+            <div id="resultRail"></div>
+          </div>
+          <div class="card" style="border-left: 4px solid var(--brand);">
+            <div class="card-header">
+              <div class="card-title" style="color: var(--brand);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: -2px;"><path d="M3 12l3-3 5 5 8-8 2 2"/></svg>
+                过程轨 · Process
+              </div>
+              <div class="card-meta">对懂行人 · 真实效果 · 6 指标</div>
+            </div>
+            <div id="processRail"></div>
+          </div>
+        </div>
+
+        <!-- 配对指标表 -->
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="card-header">
+            <div class="card-title">12 组配对指标 · 同埋点源, 双向输出</div>
+            <div class="card-meta">每一对都由同一批埋点事件计算产出 · 异常比值自动告警</div>
+          </div>
+          <div id="pairList"></div>
+        </div>
+
+        <!-- 双轨健康度图 -->
+        <div class="grid-2" style="gap: 14px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">双轨增长趋势 · W1-W12</div>
+              <div class="card-meta">同步增长 = 健康</div>
+            </div>
+            <div style="height: 220px; position: relative;"><canvas id="dualTrendChart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">结果 ÷ 过程 比值</div>
+              <div class="card-meta" id="ratioMeta">0.82 · 健康</div>
+            </div>
+            <div style="height: 220px; position: relative;"><canvas id="ratioChart"></canvas></div>
+          </div>
+        </div>
+
+        <!-- 4 终极指标链路 -->
+        <div class="card" style="margin-top: 14px;">
+          <div class="card-header">
+            <div class="card-title">4 个终极指标 · 埋点 → 计算链路</div>
+            <div class="card-meta">开发对照实现 · 每个数字都能回源</div>
+          </div>
+          <div id="ultimateLinks"></div>
+        </div>
+      </section>
+
+      <section class="view" data-view="aarrr">
+        <!-- 说明 -->
+        <div style="background: linear-gradient(90deg, var(--bg-hl) 0%, var(--pink-bg) 100%); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 20px; border-left: 4px solid var(--brand);">
+          <div style="font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px;">AARRR 用户增长漏斗 · AI 产品语境</div>
+          <div style="font-size: 12.5px; color: var(--text-2); line-height: 1.6;">
+            传统 AARRR 是"用户的钱和时间", AI 产品的 AARRR 是"用户对 AI 的真实依赖". 激活 ≠ 注册成功, 而是"首次产出被 adopt 的 AI 输出".
+          </div>
+        </div>
+
+        <!-- 漏斗 -->
+        <div class="card" style="margin-bottom: 18px;">
+          <div class="card-header">
+            <div class="card-title">Q2 当前漏斗状态</div>
+            <div class="card-meta">点击任一阶段查看该阶段的过程指标</div>
+          </div>
+          <div id="funnelBody" style="padding: 14px 0;"></div>
+        </div>
+
+        <!-- 留存分层 4 卡 -->
+        <div class="grid-4" style="margin-bottom: 18px;">
+          <div class="card retention-card" data-r="d1">
+            <div style="font-family: var(--font-mono); font-size: 11px; color: var(--info); font-weight: 600;">D1 · 次日留存</div>
+            <div style="font-size: 36px; font-weight: 700; margin-top: 10px;" class="tabular">56<span style="font-size: 18px; color: var(--text-2); font-weight: 500;">%</span></div>
+            <div style="font-size: 12px; color: var(--text-2); margin-top: 8px; line-height: 1.5;">用户是否 get 到产品价值?</div>
+            <div style="margin-top: 10px; font-size: 11px; color: var(--text-3);">基准 40-60% · 超出</div>
+          </div>
+          <div class="card retention-card" data-r="w1">
+            <div style="font-family: var(--font-mono); font-size: 11px; color: var(--brand); font-weight: 600;">W1 · 7 日留存</div>
+            <div style="font-size: 36px; font-weight: 700; margin-top: 10px;" class="tabular">38<span style="font-size: 18px; color: var(--text-2); font-weight: 500;">%</span></div>
+            <div style="font-size: 12px; color: var(--text-2); margin-top: 8px; line-height: 1.5;">用户是否形成使用习惯?</div>
+            <div style="margin-top: 10px; font-size: 11px; color: var(--text-3);">基准 20-40% · 达标</div>
+          </div>
+          <div class="card retention-card" data-r="m1">
+            <div style="font-family: var(--font-mono); font-size: 11px; color: var(--pink); font-weight: 600;">M1 · 30 日留存</div>
+            <div style="font-size: 36px; font-weight: 700; margin-top: 10px;" class="tabular">22<span style="font-size: 18px; color: var(--text-2); font-weight: 500;">%</span></div>
+            <div style="font-size: 12px; color: var(--text-2); margin-top: 8px; line-height: 1.5;">用户是否真正离不开?</div>
+            <div style="margin-top: 10px; font-size: 11px; color: var(--text-3);">基准 10-20% · 达标</div>
+          </div>
+          <div class="card retention-card" data-r="m3">
+            <div style="font-family: var(--font-mono); font-size: 11px; color: var(--warn); font-weight: 600;">M3+ · 长期留存</div>
+            <div style="font-size: 36px; font-weight: 700; margin-top: 10px;" class="tabular">14<span style="font-size: 18px; color: var(--text-2); font-weight: 500;">%</span></div>
+            <div style="font-size: 12px; color: var(--text-2); margin-top: 8px; line-height: 1.5;">用户是否成为核心粉丝?</div>
+            <div style="margin-top: 10px; font-size: 11px; color: var(--text-3);">基准 5-15% · 达标</div>
+          </div>
+        </div>
+
+        <!-- 激活漏斗 + 留存曲线 -->
+        <div class="grid-2" style="gap: 14px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">激活 4 步漏斗</div>
+              <div class="card-meta">Step 4 是流失最大一步 · 需要初始 Demo 必须成功</div>
+            </div>
+            <div id="activationSteps"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">留存曲线 · D0 → D30</div>
+              <div class="card-meta">工具型产品留存衰减较快</div>
+            </div>
+            <div style="height: 220px; position: relative;"><canvas id="retentionChart"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" data-view="stream">
+        <div class="stream-metrics">
+          <div class="kpi"><div class="kpi-label">事件上报 QPS</div><div class="kpi-value tabular" id="qpsNum">24</div><div class="kpi-delta"><span class="kpi-delta-pill up">实时</span></div></div>
+          <div class="kpi"><div class="kpi-label">埋点完整性</div><div class="kpi-value">98.7<span class="unit">%</span></div><div class="kpi-delta"><span class="kpi-delta-pill up">&gt;98% 达标</span></div></div>
+          <div class="kpi"><div class="kpi-label">埋点延迟 P95</div><div class="kpi-value">0.7<span class="unit">s</span></div><div class="kpi-delta"><span class="kpi-delta-pill up">&lt;1s 达标</span></div></div>
+          <div class="kpi"><div class="kpi-label">异常事件率</div><div class="kpi-value">0.08<span class="unit">%</span></div><div class="kpi-delta"><span class="kpi-delta-target">正常波动</span></div></div>
+        </div>
+
+        <div class="card" style="margin-bottom: 16px;">
+          <div class="card-header">
+            <div class="card-title">实时事件流 <span class="tag tag-success">● LIVE</span></div>
+            <div class="card-meta" id="streamMeta">已接入 Supabase Realtime · 订阅 23 事件</div>
+          </div>
+          <div class="stream" id="streamList"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">事件链路示例 · 一次"Lucy 选题采纳"</div>
+            <div class="card-meta">从用户点击到内容生命周期入库</div>
+          </div>
+          <div class="trace">
+            <div class="trace-step"><div class="trace-n">1</div><div class="trace-code">user 点击仿写 → <b>feature.click</b>(name='ai.clone.generate', user_id='u_42', page='scraper.hub')</div></div>
+            <div class="trace-step"><div class="trace-n">2</div><div class="trace-code">SDK 触发调用 → <b>agent.invoke</b>(agent_id='lucy', invoke_id='iv_7f2', model='gemini-3-flash')</div></div>
+            <div class="trace-step"><div class="trace-n">3</div><div class="trace-code">模型返回结果 → <b>agent.complete</b>(invoke_id='iv_7f2', duration_ms=2140, output_id='ot_9c1')</div></div>
+            <div class="trace-step"><div class="trace-n">4</div><div class="trace-code">SDK 记录消耗 → <b>token.consume</b>(model='gemini-3-flash', in=1820, out=2022, cost=$0.0011)</div></div>
+            <div class="trace-step"><div class="trace-n">5</div><div class="trace-code">user 点击直接用 → <b>agent.output.rate</b>(output_id='ot_9c1', rate_type='adopt')</div></div>
+            <div class="trace-step"><div class="trace-n">6</div><div class="trace-code">关联内容阶段 → <b>content.topic_selected</b>(content_id='c_128', agent_id='lucy', topic='欧铁冷知识')</div></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const subtabs = document.querySelectorAll('.subtab');
+const views = document.querySelectorAll('.view');
+subtabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    subtabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const key = tab.dataset.view;
+    views.forEach(v => v.classList.toggle('active', v.dataset.view === key));
+  });
+});
+
+document.querySelectorAll('.agent-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.agent-item').forEach(x => x.classList.remove('active'));
+    item.classList.add('active');
+  });
+});
+
+const agents = [
+  { n: 'Tyler', emoji: '🧑‍💻', bg: '#F0EAFB', biz: '脚本 · 选题', adopt: 72, p95: 1.8, succ: 99.8, tok: 2100, calls: 340, track: 'ok' },
+  { n: 'Lucy', emoji: '👷‍♀️', bg: '#FBEAE0', biz: '爆款抓取', adopt: 68, p95: 3.1, succ: 99.5, tok: 3842, calls: 520, track: 'ok' },
+  { n: 'Camila', emoji: '👩‍🎨', bg: '#F0EAFB', biz: '脚本 · 钩子', adopt: 66, p95: 1.2, succ: 99.9, tok: 1650, calls: 280, track: 'ok' },
+  { n: 'Jessica', emoji: '👩‍💼', bg: '#F0EAFB', biz: '脚本 · A-Roll', adopt: 65, p95: 2.4, succ: 99.7, tok: 2980, calls: 260, track: 'ok' },
+  { n: 'Isabella', emoji: '👩‍🦰', bg: '#FBEAE0', biz: '意/西 本地化', adopt: 64, p95: 2.1, succ: 99.6, tok: 2140, calls: 180, track: 'ok' },
+  { n: 'Frank', emoji: '👮', bg: '#E4F0FA', biz: '成片审核', adopt: 62, p95: 18.4, succ: 99.1, tok: 4820, calls: 410, track: 'ok' },
+  { n: 'Lucía', emoji: '💁‍♀️', bg: '#FBEAE0', biz: '法/德 本地化', adopt: 61, p95: 2.3, succ: 99.4, tok: 2080, calls: 140, track: 'ok' },
+  { n: 'Stephen', emoji: '🧑‍⚕️', bg: '#E4F0FA', biz: '事实核查', adopt: 59, p95: 4.2, succ: 98.9, tok: 3240, calls: 220, track: 'ok' },
+  { n: 'Kitty', emoji: '🧑‍🎤', bg: '#FDEAF0', biz: '英/日 本地化', adopt: 57, p95: 2.0, succ: 99.5, tok: 1980, calls: 120, track: 'ok' },
+  { n: 'Chloe', emoji: '👧', bg: '#FDEAF0', biz: '竞品监控', adopt: 55, p95: 2.8, succ: 99.2, tok: 2560, calls: 90, track: 'ok' },
+  { n: 'Jason', emoji: '🧑‍🎓', bg: '#FFF3E0', biz: '英铁脚本复刻', adopt: 54, p95: 2.2, succ: 99.3, tok: 2430, calls: 160, track: 'ok' },
+  { n: 'Valeria', emoji: '🧑‍💼', bg: '#FFF3E0', biz: '西铁脚本复刻', adopt: 52, p95: 2.4, succ: 99.0, tok: 2510, calls: 150, track: 'ok' },
+  { n: 'Gulia', emoji: '🙋‍♀️', bg: '#FFF3E0', biz: '意铁脚本复刻', adopt: 50, p95: 2.3, succ: 99.2, tok: 2480, calls: 130, track: 'ok' },
+  { n: 'Lily', emoji: '🌸', bg: '#F0EAFB', biz: '脚本 · CTA', adopt: 48, p95: 1.4, succ: 99.8, tok: 1220, calls: 240, track: 'ok' },
+  { n: 'Benny', emoji: '🧑‍🔧', bg: '#FCEAEA', biz: '脚本 · B-Roll', adopt: 44, p95: 3.2, succ: 98.7, tok: 2780, calls: 270, track: 'alert' },
+];
+
+const agentTable = document.getElementById('agentTable');
+agentTable.innerHTML = agents.map(a => {
+  const barClass = a.adopt < 50 ? 'danger' : a.adopt < 60 ? 'warn' : 'success';
+  const adoptColor = a.adopt < 50 ? 'var(--danger)' : a.adopt < 60 ? 'var(--warn)' : 'var(--success)';
+  const trackTag = a.track === 'alert' ? '<span class="tag tag-danger">告警</span>' : '<span class="tag tag-success">正常</span>';
+  return `<tr>
+    <td><div class="td-agent"><div class="td-agent-avatar" style="background:${a.bg}">${a.emoji}</div><div class="td-agent-name">${a.n}</div></div></td>
+    <td style="color: var(--text-2);">${a.biz}</td>
+    <td><div class="bar"><div class="bar-track"><div class="bar-fill ${barClass}" style="width:${a.adopt}%"></div></div><span class="bar-value" style="color:${adoptColor}">${a.adopt}%</span></div></td>
+    <td class="tabular">${a.p95}s</td>
+    <td class="tabular">${a.succ}%</td>
+    <td class="tabular">${a.tok.toLocaleString()}</td>
+    <td class="tabular">${a.calls}</td>
+    <td>${trackTag}</td>
+  </tr>`;
+}).join('');
+
+const modules = [
+  { n: '内容创作', i: 'A', pen: 96, f: '一键爬取 · AI 仿写 · 选题分析 · 视频详情 · 收藏下载' },
+  { n: '智能剪辑', i: 'B', pen: 72, f: '素材库 · 素材人审 · 机审 (Gemini) · 审核历史' },
+  { n: '发布管理', i: 'C', pen: 58, f: '排期发布 · 多平台执行 · 批量操作' },
+  { n: '数据洞察', i: 'D', pen: 34, f: '效果看板 · 竞品监控 · 归因报告' },
+  { n: '管理员', i: 'E', pen: 18, f: '爬虫任务 · 用户管理 · 权限 · 知识库' },
+];
+document.getElementById('moduleList').innerHTML = modules.map(m => `
+  <div class="module-row">
+    <div class="name"><span class="icon">${m.i}</span>${m.n}</div>
+    <div class="bar"><div class="bar-track" style="min-width:0;width:100%"><div class="bar-fill" style="width:${m.pen}%"></div></div></div>
+    <div class="pct tabular">${m.pen}%</div>
+    <div class="features">${m.f}</div>
+  </div>
+`).join('');
+
+const schemas = [
+  { cat: 'session', catLbl: '会话', catTag: 'tag-info', n: 'user.login', d: '用户登录成功时触发', flds: [['user_id', 'string', '用户 ID'], ['login_method', 'enum', 'password / sso / oauth'], ['device', 'string', '设备信息']] },
+  { cat: 'session', catLbl: '会话', catTag: 'tag-info', n: 'user.logout', d: '用户主动登出', flds: [['user_id', 'string', '用户 ID'], ['session_duration_ms', 'int', '本次会话时长']] },
+  { cat: 'session', catLbl: '会话', catTag: 'tag-info', n: 'session.heartbeat', d: '每 30s 心跳,维持活跃态', flds: [['session_id', 'uuid', '会话 ID'], ['page', 'string', '当前页面']] },
+  { cat: 'page', catLbl: '页面', catTag: 'tag-teal', n: 'page.view', d: '进入某页面', flds: [['page', 'string', '页面标识,如 scraper.hub'], ['referrer', 'string', '上游页面'], ['query', 'json', 'URL 参数']] },
+  { cat: 'page', catLbl: '页面', catTag: 'tag-teal', n: 'page.leave', d: '离开页面', flds: [['page', 'string', '页面标识'], ['dwell_ms', 'int', '停留时长']] },
+  { cat: 'feature', catLbl: '功能', catTag: 'tag-brand', n: 'feature.click', d: '可追踪按钮点击, name 字段区分具体功能', flds: [['name', 'string', '模块.功能, 如 clone.generate'], ['context', 'json', '上下文参数'], ['target_id', 'string', '目标对象 ID']] },
+  { cat: 'agent', catLbl: 'Agent', catTag: 'tag-brand', n: 'agent.invoke', d: 'Agent 调用发起', flds: [['agent_id', 'string', 'Agent 唯一标识'], ['agent_version', 'string', 'Prompt 版本号'], ['invoke_id', 'uuid', '单次调用 ID'], ['trigger_source', 'enum', 'manual/auto/cron/cascade'], ['model', 'string', '使用的模型']] },
+  { cat: 'agent', catLbl: 'Agent', catTag: 'tag-brand', n: 'agent.complete', d: 'Agent 成功完成调用', flds: [['invoke_id', 'uuid', '对应的调用 ID'], ['duration_ms', 'int', '耗时'], ['output_id', 'string', '输出内容 ID']] },
+  { cat: 'agent', catLbl: 'Agent', catTag: 'tag-brand', n: 'agent.error', d: 'Agent 失败', flds: [['invoke_id', 'uuid', '调用 ID'], ['error_type', 'enum', 'timeout/rate_limit/model_error/parse_error'], ['error_msg', 'string', '脱敏错误信息']] },
+  { cat: 'agent', catLbl: 'Agent', catTag: 'tag-brand', n: 'agent.output.rate', d: '用户对 Agent 输出的反馈 (关键指标来源)', flds: [['output_id', 'string', '输出 ID'], ['rate_type', 'enum', 'adopt / edit_adopt / reject'], ['edit_distance', 'int', '编辑距离 (可选)'], ['rate_reason', 'string', '用户可选填写原因']] },
+  { cat: 'token', catLbl: 'Token', catTag: 'tag-teal', n: 'token.consume', d: '模型调用 Token 消耗记录', flds: [['model', 'string', 'gemini-3-flash 等'], ['input_tokens', 'int', '输入 token 数'], ['output_tokens', 'int', '输出 token 数'], ['cost_usd', 'number', '本次费用']] },
+  { cat: 'content', catLbl: '生命周期', catTag: 'tag-pink', n: 'content.topic_selected', d: '选题确定,内容生命周期起点', flds: [['content_id', 'uuid', '贯穿全链路 ID'], ['topic', 'string', '选题文案'], ['source', 'enum', 'lucy / manual / replica']] },
+  { cat: 'content', catLbl: '生命周期', catTag: 'tag-pink', n: 'content.script_ready', d: '脚本终稿就绪', flds: [['content_id', 'uuid', '关联生命周期'], ['stage_duration_ms', 'int', '阶段耗时'], ['ai_duration_ms', 'int', 'AI 执行时长'], ['human_duration_ms', 'int', '人工耗时'], ['related_agents', 'array', '调用过的 Agent 列表']] },
+  { cat: 'content', catLbl: '生命周期', catTag: 'tag-pink', n: 'content.asset_ready', d: '素材备齐', flds: [['content_id', 'uuid', '生命周期 ID'], ['asset_count', 'int', '素材数量'], ['gen_ratio', 'number', 'AI 生成占比']] },
+  { cat: 'content', catLbl: '生命周期', catTag: 'tag-pink', n: 'content.audit_pass', d: '审核通过', flds: [['content_id', 'uuid', '生命周期 ID'], ['ai_verdict', 'enum', 'pass/uncertain/reject'], ['human_verdict', 'enum', 'ai_trust/override_pass/override_reject']] },
+  { cat: 'content', catLbl: '生命周期', catTag: 'tag-pink', n: 'content.published', d: '发布成功,生命周期终点', flds: [['content_id', 'uuid', '生命周期 ID'], ['platforms', 'array', '发布平台列表'], ['total_lead_time_ms', 'int', 'Lead Time 总耗时']] },
+  { cat: 'audit', catLbl: '审核', catTag: 'tag-warn', n: 'audit.verdict', d: 'AI 审核判定结果', flds: [['audit_id', 'uuid', '审核 ID'], ['verdict', 'enum', 'pass/uncertain/reject'], ['reasons', 'array', '违规类型 [face/dirty/wm/politic/copyright]'], ['confidence', 'number', '置信度']] },
+  { cat: 'audit', catLbl: '审核', catTag: 'tag-warn', n: 'audit.human_review', d: '人工复核结果 (漏杀率计算来源)', flds: [['audit_id', 'uuid', '对应 AI 审核 ID'], ['final_verdict', 'enum', 'pass/reject'], ['reviewer_id', 'string', '复核人 ID'], ['ai_correct', 'boolean', 'AI 判定是否正确']] },
+  // ===== V3 新增 · V1 (Q2 必上 · 服务贺总选定硬指标 + 公共组 KR1-KR5) =====
+  { cat: 'v1', catLbl: 'V1 新增', catTag: 'tag-success', n: 'user.deep_active', d: '★★ 深度活跃日 · 服务 KR1 WAU / 深度用户数 · 贺总选定硬指标 #1', flds: [['date', 'string', '活跃日 YYYY-MM-DD'], ['user_id', 'string', '用户 ID'], ['interaction_count', 'int', '当日有效交互次数 (≥3 触发)'], ['projects_used', 'array', '当日使用过的 project_id 列表'], ['bu_codes', 'array', '当日所属 BU 列表'], ['tokens_consumed', 'int', '当日总 Token 消耗'], ['first_deep_date', 'string', '该用户首次深度活跃日 (幂等用)']] },
+  { cat: 'v1', catLbl: 'V1 新增', catTag: 'tag-success', n: 'tool.mcp_call', d: '★★ MCP 钩子调用 · 服务 KR1 辐射外部 BU · 跨 BU 引流追踪', flds: [['tool_name', 'string', 'MCP 工具名, 如 xhs_search / baokuan_fetch'], ['caller_client', 'string', '调用方客户端标识'], ['caller_bu', 'string', '调用方所属 BU (API key 反查)'], ['success', 'boolean', '调用是否成功'], ['duration_ms', 'int', '调用耗时'], ['converted_to_register', 'boolean', '是否引流到 TripFlow 注册 (后置回填)']] },
+  { cat: 'v1', catLbl: 'V1 新增', catTag: 'tag-success', n: 'project.active', d: '★★ 项目活跃度聚合 · 服务 KR4 高价值项目周活 >100 · 贺总选定硬指标 #5', flds: [['date', 'string', '统计日'], ['project_id', 'string', '项目 ID'], ['project_name', 'string', '项目中文名'], ['dau', 'int', '当日深度活跃用户数'], ['wau_7d', 'int', '近 7 日去重活跃用户数'], ['is_high_value', 'boolean', '是否被标记为 KR4 高价值项目'], ['bu_distribution', 'json', 'BU 分布明细']] },
+  { cat: 'v1', catLbl: 'V1 新增', catTag: 'tag-success', n: 'bu.access', d: '★★ BU 接入 · 服务 KR1 接入 BU 数 >5 · 贺总选定硬指标 #4', flds: [['bu_code', 'string', 'BU 标识'], ['bu_name', 'string', 'BU 中文名'], ['first_user_id', 'string', '该 BU 首位用户 ID'], ['access_channel', 'enum', 'sharing_meeting / referral / mcp_discover / manual_onboard'], ['initial_product', 'string', '首个接入的产品/项目'], ['onboarder_id', 'string', '对接负责人']] },
+  { cat: 'v1', catLbl: 'V1 新增', catTag: 'tag-success', n: 'share.event', d: '★★ AI 分享/答疑活动 · 服务 KR5 每月>2 场高质量分享', flds: [['share_id', 'uuid', '活动 ID'], ['title', 'string', '分享标题'], ['type', 'enum', 'tech_share / case_study / qa / onboarding'], ['host_id', 'string', '主持人 ID'], ['audience_count', 'int', '到场人数'], ['audience_bus', 'array', '参会人员 BU 列表'], ['feedback_avg', 'number', '满意度评分 1-5'], ['is_high_quality', 'boolean', '是否达高质量标准 (audience≥15 且 feedback≥4.0)']] },
+
+  // ===== V2 新增 · Q3 上线 · 服务 L3 长期价值指标 (原 4 终极指标降级) =====
+  { cat: 'v2', catLbl: 'V2 新增', catTag: 'tag-info', n: 'task.baseline_record', d: '★ 任务基线测量 · Q3 上线 · 服务 L3 AI 节省时间 (基线)', flds: [['task_type', 'enum', 'topic_analysis / script_gen / audit / asset_match / localization / fact_check'], ['duration_ms', 'int', '完成任务总耗时'], ['employee_id', 'string', '执行员工 ID'], ['quality_score', 'float', '成品质量评分 1-5'], ['quarter', 'string', '所属季度, 如 2026Q2']] },
+  { cat: 'v2', catLbl: 'V2 新增', catTag: 'tag-info', n: 'task.ai_assisted', d: '★ AI 辅助任务测量 · Q3 上线 · 服务 L3 AI 节省时间 (实测) + KR3 降本', flds: [['task_type', 'enum', '任务类型, 与 baseline 对齐'], ['duration_ms', 'int', '启动 AI 到完成总耗时'], ['user_id', 'string', '用户 ID'], ['ai_intervention_count', 'int', 'AI 被调用次数'], ['human_edit_ratio', 'number', '人工编辑距离比例 0-1'], ['agents_used', 'array', '涉及的 Agent 列表'], ['content_id', 'uuid', '关联内容 ID'], ['adopted', 'boolean', '最终是否采纳 AI 输出']] },
+  { cat: 'v2', catLbl: 'V2 新增', catTag: 'tag-info', n: 'business.action', d: '★ 业务动作 · Q3 上线 · 服务 L3 业务真实暴露率', flds: [['action_type', 'enum', 'topic_set / script_deliver / audit_pass / asset_lock / publish'], ['action_id', 'uuid', '动作唯一 ID, 去重用'], ['ai_involved', 'boolean', '该动作是否有 AI 交互'], ['ai_adopted', 'boolean', 'AI 输出是否被采纳'], ['content_id', 'uuid', '关联内容 ID'], ['stage', 'enum', '业务阶段']] },
+  { cat: 'v2', catLbl: 'V2 新增', catTag: 'tag-info', n: 'employee.first_adopt', d: '★ 员工首次采纳 · Q3 上线 · 服务 L3 AI 渗透率 (分子)', flds: [['user_id', 'string', '用户 ID'], ['ts', 'int', '首次采纳时间戳'], ['upstream_event_id', 'uuid', '上游 agent.output.rate 事件 ID'], ['agent_id', 'string', '首次被采纳的 Agent'], ['quarter', 'string', '季度标识, 去重用'], ['user_dept', 'string', '用户部门 (从人事拉取)']] },
+  { cat: 'v2', catLbl: 'V2 新增', catTag: 'tag-info', n: 'stage.auto_completed', d: '★ 阶段自动完成 · Q3 上线 · 服务 L3 AI 自动化链路覆盖率', flds: [['stage', 'enum', 'scraper / asset / script / audit / edit / publish'], ['content_id', 'uuid', '内容 ID'], ['total_duration_ms', 'int', '阶段总耗时'], ['human_intervention_count', 'int', '人工介入次数 (必须 <2)'], ['ai_duration_ms', 'int', 'AI 执行耗时'], ['agents_involved', 'array', '涉及的 Agent 列表']] },
+];
+
+function renderSchemas(cat) {
+  const list = document.getElementById('schemaList');
+  const filtered = cat === 'all' ? schemas : schemas.filter(s => s.cat === cat);
+  document.getElementById('chipCount').textContent = `共 ${filtered.length} 事件`;
+  list.innerHTML = filtered.map(s => {
+    const example = s.flds.slice(0, 3).map(f => {
+      const v = f[1] === 'int' ? '42' : f[1] === 'number' ? '0.94' : f[1] === 'boolean' ? 'true' : f[1] === 'array' ? '["tiktok"]' : f[1] === 'enum' ? `"${f[2].split('/')[0].trim()}"` : `"..."`;
+      return `  <span class="str">${f[0]}</span>: <span class="${['int','number'].includes(f[1])?'num':'str'}">${v}</span>`;
+    }).join(',\n');
+    return `
+      <div class="schema-item" data-cat="${s.cat}">
+        <div class="schema-head">
+          <span class="schema-cat-tag ${s.catTag}">${s.catLbl}</span>
+          <div>
+            <div class="schema-name">${s.n}</div>
+            <div class="schema-desc">${s.d}</div>
+          </div>
+          <span class="card-meta">${s.flds.length} 字段</span>
+          <svg class="schema-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="schema-body">
+          <div style="font-size: 11px; color: var(--text-3); margin-bottom: 10px; font-family: var(--font-mono);">Schema · 公共字段省略 (event_id / user_id / session_id / ts / platform / client_version / <b style="color: var(--success);">project_id</b> / <b style="color: var(--success);">bu_code</b>)</div>
+          <div class="schema-fields">
+            ${s.flds.map(f => `<div class="schema-field"><span class="f">${f[0]}</span><span class="t">${f[1]}</span><span class="d">${f[2]}</span></div>`).join('')}
+          </div>
+          <div class="codeblock"><span class="cm">// 前端埋点 SDK 调用示例</span>
+<span class="kw">track</span>(<span class="str">"${s.n}"</span>, {
+${example}
+});</div>
+        </div>
+      </div>`;
+  }).join('');
+  list.querySelectorAll('.schema-head').forEach(h => {
+    h.addEventListener('click', () => h.closest('.schema-item').classList.toggle('open'));
+  });
+}
+renderSchemas('all');
+
+document.querySelectorAll('#chipGroup .chip').forEach(c => {
+  c.addEventListener('click', () => {
+    document.querySelectorAll('#chipGroup .chip').forEach(x => x.classList.remove('on'));
+    c.classList.add('on');
+    renderSchemas(c.dataset.cat);
+  });
+});
+
+document.querySelectorAll('#trkMode .trk-mode-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#trkMode .trk-mode-btn').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    document.getElementById('trkAnnot').classList.toggle('on', b.dataset.mode === 'annot');
+    document.getElementById('trkDict').classList.toggle('on', b.dataset.mode === 'dict');
+  });
+});
+
+const wfTpls = {
+'scraper.hub': () => `
+<div class="wf-url"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span><span class="path">trn-video-editor-web-function.faas.ctripcorp.com/content/scraper</span></div>
+<div class="wf-hdr">爆款抓取 · 管理员视图<span class="pt-dot pv" data-n="1" style="top: -10px; left: -10px;">1</span></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+<div class="wf-box" style="text-align: center;"><span class="wf-lbl-s">Tab</span>任务列表<span class="pt-dot" data-n="2" style="top: -10px; right: -10px;">2</span></div>
+<div class="wf-box" style="text-align: center; background: var(--bg-sub);"><span class="wf-lbl-s">Tab</span>管理员视角<span class="pt-dot" data-n="3" style="top: -10px; right: -10px;">3</span></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px;">
+<div class="wf-card-s"><div class="ct">关键词抓取视频</div><div class="cd">输入关键词...</div><span class="pt-dot" data-n="4" style="top: -10px; right: -10px;">4</span></div>
+<div class="wf-card-s"><div class="ct">链接分析</div><div class="cd">粘贴链接...</div><span class="pt-dot" data-n="5" style="top: -10px; right: -10px;">5</span></div>
+<div class="wf-card-s"><div class="ct">播主跟踪</div><div class="cd">输入播主...</div><span class="pt-dot" data-n="6" style="top: -10px; right: -10px;">6</span></div>
+</div>
+<div class="wf-box" style="padding: 12px;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"><b style="font-size: 11.5px; color: var(--text);">爬虫任务列表</b><span class="wf-btn-s primary">+ 新增爬虫任务<span class="pt-dot" data-n="7" style="top: -10px; right: -10px;">7</span></span></div>
+<div style="background: var(--bg-sub); padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 10.5px;">
+<div style="margin-bottom: 6px;">组别 <span class="wf-tag-s">西/意铁组</span> 平台 <span class="wf-tag-s">tiktok</span> 频率 <span class="wf-tag-s">每 4 小时</span></div>
+<div style="display: flex; gap: 6px; margin-top: 8px;">
+<span class="wf-btn-s primary">一键爬取<span class="pt-dot" data-n="8" style="top: -10px; right: -10px;">8</span></span>
+<span class="wf-btn-s">爬取记录<span class="pt-dot" data-n="9" style="top: -10px; right: -10px;">9</span></span>
+<span class="wf-btn-s">编辑</span>
+<span class="wf-btn-s">启动</span>
+<span class="wf-btn-s danger">删除<span class="pt-dot" data-n="10" style="top: -10px; right: -10px;">10</span></span>
+</div></div>
+<div style="text-align: center; font-size: 10.5px; color: var(--text-3); padding: 6px 0;">共 47 个任务 · 分页 1 2 3 ... 24</div>
+</div>`,
+
+'waterfall': () => `
+<div class="wf-url"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span><span class="path">trn-video-editor-web-function.faas.ctripcorp.com/content/waterfall</span></div>
+<div class="wf-hdr">视频瀑布流 · AI 爆款分析<span class="pt-dot pv" data-n="1" style="top: -10px; left: -10px;">1</span></div>
+<div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
+<span class="wf-input-s" style="flex: 1;">搜索描述...<span class="pt-dot" data-n="2" style="top: -10px; right: -10px;">2</span></span>
+<span class="wf-btn-s primary">搜索</span>
+<span class="wf-btn-s primary">TikTok<span class="pt-dot" data-n="3" style="top: -10px; right: -10px;">3</span></span>
+<span class="wf-btn-s">Douyin</span>
+<span class="wf-btn-s">Redbook</span>
+</div>
+<div style="display: flex; gap: 8px; margin-bottom: 12px; font-size: 10.5px; flex-wrap: wrap;">
+<span class="wf-input-s">更新时间 全部<span class="pt-dot" data-n="4" style="top: -10px; right: -10px;">4</span></span>
+<span class="wf-input-s">时长 全部<span class="pt-dot" data-n="5" style="top: -10px; right: -10px;">5</span></span>
+<span class="wf-input-s">脚本字数 40</span>
+<span class="wf-input-s">地区 请选择</span>
+</div>
+<div style="background: var(--bg-elev); border: 1px solid var(--line); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 10.5px; position: relative;">
+标签 (1194) <span class="wf-tag-s">Italy</span> <span class="wf-tag-s">traval</span> <span class="wf-tag-s">treno</span> <span class="wf-tag-s">travel</span> <span class="wf-tag-s">airplane</span>...
+<span class="pt-dot" data-n="6" style="top: -10px; right: -10px;">6</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+<div style="position: relative;"><div class="wf-thumb-s"></div><div style="margin-top: 6px; font-size: 10.5px; color: var(--text-3);">1.1m · travel</div><span class="pt-dot" data-n="7" style="top: 6px; right: 6px;">7</span></div>
+<div style="position: relative;"><div class="wf-thumb-s" style="background: linear-gradient(135deg, #C0DD97, #9FE1CB);"></div><div style="margin-top: 6px; font-size: 10.5px; color: var(--text-3);">7.3w · italy</div><span class="pt-dot" data-n="8" style="top: 6px; right: 6px;">8</span></div>
+<div style="position: relative;"><div class="wf-thumb-s" style="background: linear-gradient(135deg, #F5C4B3, #F4C0D1);"></div><div style="margin-top: 6px; font-size: 10.5px; color: var(--text-3);">6.8w · tren</div><span class="pt-dot" data-n="9" style="top: 6px; right: 6px;">9</span></div>
+<div style="position: relative;"><div class="wf-thumb-s" style="background: linear-gradient(135deg, #B5D4F4, #CECBF6);"></div><div style="margin-top: 6px; font-size: 10.5px; color: var(--text-3);">2.9k · treno</div><span class="pt-dot ag" data-n="10" style="top: 6px; right: 6px;">10</span></div>
+</div>`,
+
+'video.detail': () => `
+<div class="wf-url"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span><span class="path">/content/video/detail?id=v_128</span></div>
+<div class="wf-hdr">视频详情 · Modal<span class="pt-dot pv" data-n="1" style="top: -10px; left: -10px;">1</span></div>
+<div style="display: grid; grid-template-columns: 180px 1fr; gap: 14px;">
+<div>
+<div class="wf-thumb-s"></div>
+<div style="margin-top: 8px; display: flex; gap: 4px; flex-wrap: wrap;">
+<span class="wf-btn-s" style="font-size: 10px; padding: 3px 8px;">复制原链接<span class="pt-dot" data-n="2" style="top: -8px; right: -8px;">2</span></span>
+<span class="wf-btn-s" style="font-size: 10px; padding: 3px 8px;">下载<span class="pt-dot" data-n="3" style="top: -8px; right: -8px;">3</span></span>
+</div></div>
+<div>
+<div style="display: flex; gap: 6px; margin-bottom: 12px; border-bottom: 1px solid var(--line); padding-bottom: 8px;">
+<span class="wf-btn-s primary">基本信息<span class="pt-dot" data-n="4" style="top: -10px; right: -10px;">4</span></span>
+<span class="wf-btn-s">AI 仿写复刻<span class="pt-dot ag" data-n="5" style="top: -10px; right: -10px;">5</span></span>
+<span class="wf-btn-s">AI 选题分析<span class="pt-dot ag" data-n="6" style="top: -10px; right: -10px;">6</span></span>
+</div>
+<div style="background: var(--bg-sub); padding: 10px 12px; border-radius: 6px; font-size: 10.5px; margin-bottom: 8px;"><b>选题</b> 社牛萌娃在飞机上给陌生乘客发贴纸的温馨互动</div>
+<div style="background: var(--bg-sub); padding: 10px 12px; border-radius: 6px; font-size: 10.5px; margin-bottom: 8px; position: relative;"><b>BGM</b> There She Goes — The La's<span class="pt-dot" data-n="7" style="top: -10px; right: -10px;">7</span></div>
+<div style="background: var(--bg-sub); padding: 10px 12px; border-radius: 6px; font-size: 10.5px;">
+<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><b>中文脚本</b>
+<span style="display: flex; gap: 4px;">
+<span class="wf-btn-s" style="font-size: 10px; padding: 2px 8px;">复制<span class="pt-dot" data-n="8" style="top: -8px; right: -8px;">8</span></span>
+<span class="wf-btn-s" style="font-size: 10px; padding: 2px 8px;">收藏<span class="pt-dot" data-n="9" style="top: -8px; right: -8px;">9</span></span>
+</span></div>
+[0-3s][手持镜头,蹒跚学步的小孩...] [3-7s][小孩走向另一名乘客...]
+</div>
+<div style="margin-top: 10px; padding: 8px 10px; background: #FAECE7; border-left: 3px solid #D85A30; border-radius: 0 6px 6px 0; font-size: 10.5px; color: #712B13; position: relative;">
+级联 触发 Lucy Agent 调用 (tab 切换到 AI 仿写复刻时自动唤起)<span class="pt-dot ag" data-n="10" style="top: -10px; right: -10px;">10</span>
+</div></div></div>`,
+
+'edit.audit': () => `
+<div class="wf-url"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span><span class="path">/edit/audit</span></div>
+<div class="wf-hdr">Frank · 成片审核法务<span class="pt-dot pv" data-n="1" style="top: -10px; left: -10px;">1</span></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+<div class="wf-box" style="padding: 14px;">
+<b style="font-size: 11.5px; display: block; margin-bottom: 10px; color: var(--text);">内容审核</b>
+<span class="wf-lbl-s">选择审核类型</span>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px;">
+<span class="wf-btn-s primary" style="text-align: center; padding: 10px; justify-content: center;">视频审核<span class="pt-dot" data-n="2" style="top: -10px; right: -10px;">2</span></span>
+<span class="wf-btn-s" style="text-align: center; padding: 10px; justify-content: center;">图文审核<span class="pt-dot" data-n="3" style="top: -10px; right: -10px;">3</span></span>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px;">
+<span class="wf-btn-s">上传链接<span class="pt-dot" data-n="4" style="top: -10px; right: -10px;">4</span></span>
+<span class="wf-btn-s">上传提示词<span class="pt-dot" data-n="5" style="top: -10px; right: -10px;">5</span></span>
+<span class="wf-btn-s">上传切片提示词</span>
+<span class="wf-btn-s">上传聚合提示词</span>
+</div>
+<span class="wf-lbl-s">选择模型</span>
+<div style="font-size: 10.5px; color: var(--text-2); margin-bottom: 12px; position: relative;">
+☐ Gemini 2.5 Flash &nbsp; ☑ Gemini 3 Flash &nbsp; ☐ Gemini 3 Pro
+<span class="pt-dot" data-n="6" style="top: -10px; right: -10px;">6</span>
+</div>
+<div style="background: var(--bg-sub); border: 1px dashed var(--line-strong); border-radius: 6px; padding: 20px; text-align: center; font-size: 10.5px; color: var(--text-3); margin-bottom: 12px; position: relative;">
+点击或拖拽视频文件到此处<span class="pt-dot" data-n="7" style="top: -10px; right: -10px;">7</span>
+</div>
+<span class="wf-btn-s primary" style="display: block; text-align: center; padding: 10px; justify-content: center;">▶ 开始审核<span class="pt-dot ag" data-n="8" style="top: -10px; right: -10px;">8</span></span>
+</div>
+<div class="wf-box" style="padding: 14px;">
+<b style="font-size: 11.5px; display: block; margin-bottom: 10px; color: var(--text);">审核结果 (0)</b>
+<div style="text-align: center; color: var(--text-3); font-size: 10.5px; padding: 50px 0; position: relative;">
+暂无待审核任务<br><span style="font-size: 10px;">上传的文件将在这里等待审核</span>
+<span class="pt-dot ad" data-n="9" style="top: 50%; left: 50%; transform: translateX(-50%);">9</span>
+</div></div></div>`,
+
+'edit.audit_history': () => `
+<div class="wf-url"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span><span class="path">/edit/audit/history</span></div>
+<div class="wf-hdr">审核历史<span class="pt-dot pv" data-n="1" style="top: -10px; left: -10px;">1</span></div>
+<div class="wf-box" style="padding: 12px;">
+<table class="wf-tbl-s">
+<thead><tr><th>文件名</th><th>上传人</th><th>大小</th><th>AI 审核</th><th>人工</th><th>操作</th></tr></thead>
+<tbody>
+<tr><td>张梦云-30.mp4</td><td>张梦云</td><td>14.16 MB</td><td><span class="wf-btn-s reject" style="font-size: 10px; padding: 2px 8px;">AI 审核拒绝</span></td><td>-</td><td style="position: relative;"><span class="wf-btn-s" style="font-size: 10px; padding: 2px 8px;">人工审核<span class="pt-dot ad" data-n="2" style="top: -10px; right: -10px;">2</span></span></td></tr>
+<tr><td>熊浩成-2.mp4</td><td>熊浩成</td><td>13.13 MB</td><td><span class="wf-btn-s reject" style="font-size: 10px; padding: 2px 8px;">AI 审核拒绝</span></td><td>-</td><td><span class="wf-btn-s" style="font-size: 10px; padding: 2px 8px;">人工审核</span></td></tr>
+<tr><td>范家鸣-39.mp4</td><td>范家鸣</td><td>14.41 MB</td><td><span class="wf-btn-s reject" style="font-size: 10px; padding: 2px 8px;">AI 审核拒绝</span></td><td><span class="wf-btn-s success" style="font-size: 10px; padding: 2px 8px;">通过</span></td><td style="position: relative;"><span class="wf-btn-s primary" style="font-size: 10px; padding: 2px 8px;">详情<span class="pt-dot" data-n="3" style="top: -10px; right: -10px;">3</span></span></td></tr>
+<tr><td>张梦云-29.mp4</td><td>张梦云</td><td>16.66 MB</td><td><span class="wf-btn-s reject" style="font-size: 10px; padding: 2px 8px;">AI 审核拒绝</span></td><td>-</td><td><span class="wf-btn-s" style="font-size: 10px; padding: 2px 8px;">人工审核</span></td></tr>
+</tbody>
+</table>
+<div style="margin-top: 12px; padding: 10px 12px; background: var(--warn-bg); border-left: 3px solid var(--warn); border-radius: 0 6px 6px 0; font-size: 10.5px; color: #633806; position: relative;">
+级联 人工复核按钮点击,除 feature.click,同时触发 audit.human_review (漏杀率唯一来源)<span class="pt-dot ad" data-n="4" style="top: -10px; right: -10px;">4</span>
+</div>
+<div style="margin-top: 8px; padding: 8px 10px; background: var(--success-bg); border-left: 3px solid var(--success); border-radius: 0 6px 6px 0; font-size: 10.5px; color: #0A5A3D; position: relative;">
+离开页面时 page.leave (记录 dwell_ms)<span class="pt-dot pv" data-n="5" style="top: -10px; right: -10px;">5</span>
+</div></div>`,
+
+'edit.material_review': () => `
+<div class="wf-url"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span><span class="path">/edit/material/review</span></div>
+<div class="wf-hdr">智能剪辑 · 素材人审<span class="pt-dot pv" data-n="1" style="top: -10px; left: -10px;">1</span></div>
+<div style="display: grid; grid-template-columns: 110px 1fr; gap: 12px;">
+<div style="display: flex; flex-direction: column; gap: 4px; font-size: 10.5px;">
+<div class="wf-btn-s" style="justify-content: flex-start;">开始创作<span class="pt-dot" data-n="2" style="top: -8px; right: -8px;">2</span></div>
+<div class="wf-btn-s" style="justify-content: flex-start;">素材库</div>
+<div class="wf-btn-s primary" style="justify-content: flex-start;">素材人审<span class="pt-dot" data-n="3" style="top: -8px; right: -8px;">3</span></div>
+<div class="wf-btn-s" style="justify-content: flex-start;">审核历史</div>
+<div class="wf-btn-s" style="justify-content: flex-start;">任务看板</div>
+</div>
+<div>
+<div style="display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap;">
+<span class="wf-input-s">素材名称<span class="pt-dot" data-n="4" style="top: -10px; right: -10px;">4</span></span>
+<span class="wf-input-s">素材类型<span class="pt-dot" data-n="5" style="top: -10px; right: -10px;">5</span></span>
+<span class="wf-input-s">上传日期</span>
+<span class="wf-btn-s">重置<span class="pt-dot" data-n="6" style="top: -10px; right: -10px;">6</span></span>
+<span class="wf-btn-s primary">搜索</span>
+</div>
+<div style="display: flex; gap: 6px; margin-bottom: 10px;">
+<span class="wf-btn-s success">✓ 批量通过 (0)<span class="pt-dot ad" data-n="7" style="top: -10px; right: -10px;">7</span></span>
+<span class="wf-btn-s reject">✗ 批量拒绝 (0)<span class="pt-dot ad" data-n="8" style="top: -10px; right: -10px;">8</span></span>
+</div>
+<div class="wf-box" style="padding: 10px;">
+<table class="wf-tbl-s">
+<thead><tr><th>素材</th><th>预览</th><th>大小</th><th>机审</th><th>操作</th></tr></thead>
+<tbody>
+<tr><td>veo-座椅-5.mp4</td><td style="position: relative;"><span class="wf-btn-s" style="font-size: 10px; padding: 3px 8px;">预览<span class="pt-dot" data-n="9" style="top: -8px; right: -8px;">9</span></span></td><td>25.4 MB</td><td><span class="wf-btn-s reject" style="font-size: 10px; padding: 2px 8px;">机审拒绝</span></td><td style="position: relative;"><span class="wf-btn-s success" style="font-size: 10px; padding: 2px 6px;">✓ 通过<span class="pt-dot ad" data-n="10" style="top: -8px; right: -8px;">10</span></span> <span class="wf-btn-s reject" style="font-size: 10px; padding: 2px 6px;">✗ 拒绝<span class="pt-dot ad" data-n="11" style="top: -8px; right: -8px;">11</span></span></td></tr>
+<tr><td>kling-座椅-7.mp4</td><td><span class="wf-btn-s" style="font-size: 10px; padding: 3px 8px;">预览</span></td><td>8.9 MB</td><td><span class="wf-btn-s success" style="font-size: 10px; padding: 2px 8px;">机审通过</span></td><td><span class="wf-btn-s success" style="font-size: 10px; padding: 2px 6px;">✓ 通过</span> <span class="wf-btn-s reject" style="font-size: 10px; padding: 2px 6px;">✗ 拒绝</span></td></tr>
+<tr><td>Veo3-人群-2.mp4</td><td><span class="wf-btn-s" style="font-size: 10px; padding: 3px 8px;">预览</span></td><td>24.8 MB</td><td><span class="wf-btn-s reject" style="font-size: 10px; padding: 2px 8px;">机审拒绝</span></td><td><span class="wf-btn-s success" style="font-size: 10px; padding: 2px 6px;">✓ 通过</span> <span class="wf-btn-s reject" style="font-size: 10px; padding: 2px 6px;">✗ 拒绝</span></td></tr>
+</tbody>
+</table>
+<div style="margin-top: 10px; padding: 8px 10px; background: var(--pink-bg); border-left: 3px solid var(--pink); border-radius: 0 6px 6px 0; font-size: 10px; color: #72243E; position: relative;">
+级联 审核决策完成后, 联动触发 content.audit_pass 生命周期事件 (关联 content_id)<span class="pt-dot" style="top: -10px; right: -10px; background: var(--pink); box-shadow: 0 0 0 1.5px var(--pink);" data-n="12">12</span>
+</div></div></div></div>`,
+};
+
+const pages = [
+ { id: 'scraper.hub', name: '爆款抓取 · 管理员', path: '/content/scraper', points: [
+  { n: 1, cat: 'pv', ev: 'page.view', kr: 'KR4', w: '进入爆款抓取管理员视图', flds: [['page', 'string', 'scraper.hub'], ['referrer', 'string', '上游页面'], ['tab', 'string', '默认 task_list']] },
+  { n: 2, cat: 'click', ev: 'feature.click', nm: 'scraper.tab.task_list', kr: 'L2', w: '点击 任务列表 tab', flds: [['name', 'string', 'scraper.tab.task_list'], ['from_tab', 'string', '上一个 tab']] },
+  { n: 3, cat: 'click', ev: 'feature.click', nm: 'scraper.tab.admin_view', kr: 'L2', w: '点击 管理员视角 tab', flds: [['name', 'string', 'scraper.tab.admin_view']] },
+  { n: 4, cat: 'click', ev: 'feature.click', nm: 'scraper.keyword.start', kr: 'KR4', w: '点击关键词抓取卡片入口', flds: [['name', 'string', 'scraper.keyword.start'], ['keyword', 'string', '用户输入的关键词']] },
+  { n: 5, cat: 'click', ev: 'feature.click', nm: 'scraper.link.analyze', kr: 'KR4', w: '粘贴链接分析入口', flds: [['name', 'string', 'scraper.link.analyze'], ['link_count', 'int', '粘贴的链接数']] },
+  { n: 6, cat: 'click', ev: 'feature.click', nm: 'scraper.owner.track', kr: 'KR4', w: '播主跟踪入口', flds: [['name', 'string', 'scraper.owner.track']] },
+  { n: 7, cat: 'click', ev: 'feature.click', nm: 'scraper.task.new', kr: 'KR4', w: '新增爬虫任务按钮', flds: [['name', 'string', 'scraper.task.new']] },
+  { n: 8, cat: 'click', ev: 'feature.click', nm: 'scraper.task.one_click', kr: 'KR1 深度', w: '任务行的 一键爬取 按钮 · 核心深度行为', flds: [['name', 'string', 'scraper.task.one_click'], ['task_id', 'uuid', '任务 ID'], ['platform', 'string', 'tiktok/douyin/xhs'], ['keywords', 'array', '关键词列表']] },
+  { n: 9, cat: 'click', ev: 'feature.click', nm: 'scraper.task.records', kr: 'L2', w: '查看爬取记录', flds: [['name', 'string', 'scraper.task.records'], ['task_id', 'uuid', '任务 ID']] },
+  { n: 10, cat: 'click', ev: 'feature.click', nm: 'scraper.task.delete', kr: 'L2', w: '删除爬虫任务 (危险操作)', flds: [['name', 'string', 'scraper.task.delete'], ['task_id', 'uuid', '任务 ID'], ['confirmed', 'boolean', '是否二次确认']] },
+  { n: 11, cat: 'v1', ev: 'user.deep_active', kr: 'KR1 WAU', w: '★★ 级联 · 计算层每日凌晨扫描当日 feature.click 去重 ≥3 次时补发 · 不直接由本页触发, 但本页的深度点击是触发源', flds: [['date', 'string', '活跃日'], ['user_id', 'string', '用户 ID'], ['interaction_count', 'int', '当日有效交互次数 ≥3'], ['projects_used', 'array', 'tripflow / tripflow-agent'], ['bu_codes', 'array', 'train-intl / train-domestic']] },
+ ]},
+ { id: 'waterfall', name: '视频瀑布流', path: '/content/waterfall', points: [
+  { n: 1, cat: 'pv', ev: 'page.view', kr: 'KR1 WAU', w: '进入视频瀑布流页 · WAU 重要来源', flds: [['page', 'string', 'scraper.waterfall'], ['source_tab', 'string', '最新高分 / 高赞精品']] },
+  { n: 2, cat: 'click', ev: 'feature.click', nm: 'waterfall.search', kr: 'KR1 深度', w: '点击搜索', flds: [['name', 'string', 'waterfall.search'], ['query', 'string', '搜索关键词'], ['result_count', 'int', '命中视频数']] },
+  { n: 3, cat: 'click', ev: 'feature.click', nm: 'waterfall.platform.switch', kr: 'L2', w: '切换平台 TikTok/Douyin/Redbook', flds: [['name', 'string', 'waterfall.platform.switch'], ['from', 'string', '原平台'], ['to', 'string', '新平台']] },
+  { n: 4, cat: 'click', ev: 'feature.click', nm: 'waterfall.filter.update_time', kr: 'L2', w: '筛选 更新时间', flds: [['name', 'string', 'waterfall.filter.update_time'], ['value', 'string', '全部/近24h/近7d']] },
+  { n: 5, cat: 'click', ev: 'feature.click', nm: 'waterfall.filter.duration', kr: 'L2', w: '筛选 时长', flds: [['name', 'string', 'waterfall.filter.duration'], ['value', 'string', '时长范围']] },
+  { n: 6, cat: 'click', ev: 'feature.click', nm: 'waterfall.filter.tag', kr: 'L2', w: '点击某个标签过滤', flds: [['name', 'string', 'waterfall.filter.tag'], ['tag', 'string', '点击的标签'], ['tag_count', 'int', '该标签视频数']] },
+  { n: 7, cat: 'click', ev: 'feature.click', nm: 'waterfall.video.click', kr: 'KR1 深度', w: '点击视频卡 (进入详情)', flds: [['name', 'string', 'waterfall.video.click'], ['video_id', 'string', '视频 ID'], ['position', 'int', '瀑布流中的位置']] },
+  { n: 8, cat: 'click', ev: 'feature.click', nm: 'waterfall.video.favorite', kr: 'L2', w: '收藏视频', flds: [['name', 'string', 'waterfall.video.favorite'], ['video_id', 'string', '视频 ID'], ['action', 'enum', 'add / remove']] },
+  { n: 9, cat: 'click', ev: 'feature.click', nm: 'waterfall.video.analyze', kr: 'KR2 Token', w: '触发 AI 选题分析 (唤起 Lucy) · 引发 Token 消耗', flds: [['name', 'string', 'waterfall.video.analyze'], ['video_id', 'string', '视频 ID']] },
+  { n: 10, cat: 'ag', ev: 'agent.invoke', kr: 'KR2 Token', w: '级联 Lucy Agent 启动结构化分析 · 消耗 Token · 必须归属 project_id/bu_code', flds: [['agent_id', 'string', 'lucy'], ['invoke_id', 'uuid', '调用 ID'], ['trigger_source', 'enum', 'manual'], ['model', 'string', 'gemini-3-flash'], ['project_id', 'string', 'tripflow-agent'], ['bu_code', 'string', 'train-intl']] },
+ ]},
+ { id: 'video.detail', name: '视频详情', path: '/content/video/detail', points: [
+  { n: 1, cat: 'pv', ev: 'page.view', kr: 'KR1 深度', w: '打开视频详情 Modal · 深度行为', flds: [['page', 'string', 'video.detail'], ['video_id', 'string', '视频 ID'], ['entry', 'string', '进入方式']] },
+  { n: 2, cat: 'click', ev: 'feature.click', nm: 'detail.video.copy_link', kr: 'L2', w: '复制原视频链接', flds: [['name', 'string', 'detail.video.copy_link'], ['video_id', 'string', '视频 ID']] },
+  { n: 3, cat: 'click', ev: 'feature.click', nm: 'detail.video.download', kr: 'L2', w: '下载视频到本地', flds: [['name', 'string', 'detail.video.download'], ['video_id', 'string', '视频 ID'], ['file_size_mb', 'number', '文件大小']] },
+  { n: 4, cat: 'click', ev: 'feature.click', nm: 'detail.tab.basic', kr: 'L2', w: '切换 基本信息 tab', flds: [['name', 'string', 'detail.tab.basic']] },
+  { n: 5, cat: 'ag', ev: 'feature.click', nm: 'detail.tab.clone', kr: 'KR2 Token', w: '切换 AI 仿写复刻 tab (会级联 Lucy) · 消耗 Token', flds: [['name', 'string', 'detail.tab.clone'], ['video_id', 'string', '视频 ID']] },
+  { n: 6, cat: 'ag', ev: 'feature.click', nm: 'detail.tab.topic_analyze', kr: 'KR2 Token', w: '切换 AI 选题分析 tab', flds: [['name', 'string', 'detail.tab.topic_analyze'], ['video_id', 'string', '视频 ID']] },
+  { n: 7, cat: 'click', ev: 'feature.click', nm: 'detail.bgm.copy', kr: 'L2', w: '复制 BGM 名称', flds: [['name', 'string', 'detail.bgm.copy'], ['bgm', 'string', 'BGM 名']] },
+  { n: 8, cat: 'click', ev: 'feature.click', nm: 'detail.script.copy', kr: 'L2 采纳', w: '复制中文脚本 · 隐式采纳信号', flds: [['name', 'string', 'detail.script.copy'], ['video_id', 'string', '视频 ID'], ['script_length', 'int', '脚本长度']] },
+  { n: 9, cat: 'click', ev: 'feature.click', nm: 'detail.script.save', kr: 'L2 采纳', w: '保存脚本到脚本库 · 强采纳信号', flds: [['name', 'string', 'detail.script.save'], ['video_id', 'string', '视频 ID']] },
+  { n: 10, cat: 'ag', ev: 'agent.invoke', kr: 'KR2 Token', w: '级联 Lucy 仿写/分析调用 (tab 切换触发) · 归属 project_id', flds: [['agent_id', 'string', 'lucy'], ['invoke_id', 'uuid', '调用 ID'], ['trigger_source', 'enum', 'cascade'], ['upstream_content_id', 'string', 'video_id'], ['model', 'string', 'gemini-3-flash'], ['project_id', 'string', 'tripflow-agent'], ['bu_code', 'string', 'train-intl']] },
+  { n: 11, cat: 'v1', ev: 'tool.mcp_call', kr: 'KR1 辐射', w: '★★ 级联 · 若本次 Lucy 分析是通过对外暴露的 MCP tool (如 xhs_search_mcp) 被外部 Client 调起, 同步记录 · 服务跨 BU 引流', flds: [['tool_name', 'string', 'xhs_search_mcp'], ['caller_client', 'string', 'claude-desktop / cursor'], ['caller_bu', 'string', '从 API key 反查'], ['success', 'boolean', 'true'], ['duration_ms', 'int', '调用耗时']] },
+ ]},
+ { id: 'edit.audit', name: '成片审核 (Frank)', path: '/edit/audit', points: [
+  { n: 1, cat: 'pv', ev: 'page.view', kr: 'KR4', w: '进入 Frank 成片审核页', flds: [['page', 'string', 'edit.audit'], ['referrer', 'string', '上游页面']] },
+  { n: 2, cat: 'click', ev: 'feature.click', nm: 'audit.type.video', kr: 'L2', w: '选择 视频审核 类型', flds: [['name', 'string', 'audit.type.video']] },
+  { n: 3, cat: 'click', ev: 'feature.click', nm: 'audit.type.image_text', kr: 'L2', w: '选择 图文审核 类型', flds: [['name', 'string', 'audit.type.image_text']] },
+  { n: 4, cat: 'click', ev: 'feature.click', nm: 'audit.upload.link', kr: 'L2', w: '上传链接方式', flds: [['name', 'string', 'audit.upload.link'], ['url', 'string', '脱敏, 存 hash']] },
+  { n: 5, cat: 'click', ev: 'feature.click', nm: 'audit.upload.prompt', kr: 'L2', w: '上传审核提示词', flds: [['name', 'string', 'audit.upload.prompt'], ['prompt_size', 'int', '提示词字节数']] },
+  { n: 6, cat: 'click', ev: 'feature.click', nm: 'audit.model.select', kr: 'L2', w: '切换模型 (Gemini 2.5 / 3 Flash / 3 Pro)', flds: [['name', 'string', 'audit.model.select'], ['model', 'string', '新模型 ID']] },
+  { n: 7, cat: 'click', ev: 'feature.click', nm: 'audit.upload.video', kr: 'L2', w: '上传视频文件', flds: [['name', 'string', 'audit.upload.video'], ['file_size_mb', 'number', '大小'], ['file_duration_s', 'int', '时长秒数']] },
+  { n: 8, cat: 'ag', ev: 'agent.invoke', kr: 'KR2 Token', w: '点击 开始审核 触发 Frank Agent · Token 消耗大户', flds: [['agent_id', 'string', 'frank'], ['invoke_id', 'uuid', '调用 ID'], ['trigger_source', 'enum', 'manual'], ['model', 'string', 'gemini-3-flash'], ['project_id', 'string', 'tripflow-agent'], ['bu_code', 'string', 'train-intl']] },
+  { n: 9, cat: 'ad', ev: 'audit.verdict', kr: 'L2 漏杀', w: 'Frank 审核完成, AI 判定结果 · 漏杀率分母', flds: [['audit_id', 'uuid', '审核 ID'], ['verdict', 'enum', 'pass/uncertain/reject'], ['reasons', 'array', '违规类型 [face/dirty/wm/politic/copyright]'], ['confidence', 'number', '置信度']] },
+ ]},
+ { id: 'edit.audit_history', name: '审核历史', path: '/edit/audit/history', points: [
+  { n: 1, cat: 'pv', ev: 'page.view', kr: 'L2', w: '进入审核历史页', flds: [['page', 'string', 'edit.audit_history'], ['referrer', 'string', '上游']] },
+  { n: 2, cat: 'ad', ev: 'audit.human_review', kr: 'L2 漏杀', w: '点击 人工审核 后的最终决策 (漏杀率唯一来源)', flds: [['audit_id', 'uuid', '对应 AI 审核 ID'], ['final_verdict', 'enum', 'pass/reject'], ['reviewer_id', 'string', '复核人'], ['ai_correct', 'boolean', 'AI 是否正确 (漏杀率计算)']] },
+  { n: 3, cat: 'click', ev: 'feature.click', nm: 'audit_history.detail', kr: 'L2', w: '查看某条审核详情', flds: [['name', 'string', 'audit_history.detail'], ['audit_id', 'uuid', '审核 ID']] },
+  { n: 4, cat: 'ad', ev: 'audit.human_review', kr: 'L2 漏杀', w: '批量场景 多条联动触发 (需去重)', flds: [['audit_ids', 'array', '多个审核 ID'], ['reviewer_id', 'string', '复核人']] },
+  { n: 5, cat: 'pv', ev: 'page.leave', kr: 'L2', w: '离开页面 (记录停留时长)', flds: [['page', 'string', 'edit.audit_history'], ['dwell_ms', 'int', '停留毫秒数']] },
+ ]},
+ { id: 'edit.material_review', name: '素材人审', path: '/edit/material/review', points: [
+  { n: 1, cat: 'pv', ev: 'page.view', kr: 'KR4', w: '进入素材人审页', flds: [['page', 'string', 'edit.material_review'], ['referrer', 'string', '上游']] },
+  { n: 2, cat: 'click', ev: 'feature.click', nm: 'material.nav.start_create', kr: 'L2', w: '侧栏 开始创作', flds: [['name', 'string', 'material.nav.start_create']] },
+  { n: 3, cat: 'click', ev: 'feature.click', nm: 'material.nav.manual_review', kr: 'L2', w: '侧栏 素材人审 (当前)', flds: [['name', 'string', 'material.nav.manual_review']] },
+  { n: 4, cat: 'click', ev: 'feature.click', nm: 'material.search', kr: 'KR1 深度', w: '素材名称搜索', flds: [['name', 'string', 'material.search'], ['query', 'string', '搜索词'], ['result_count', 'int', '命中数']] },
+  { n: 5, cat: 'click', ev: 'feature.click', nm: 'material.type_filter', kr: 'L2', w: '素材类型筛选', flds: [['name', 'string', 'material.type_filter'], ['type', 'string', 'video/audio/image']] },
+  { n: 6, cat: 'click', ev: 'feature.click', nm: 'material.reset', kr: 'L2', w: '重置筛选', flds: [['name', 'string', 'material.reset']] },
+  { n: 7, cat: 'ad', ev: 'audit.human_review', kr: 'L2 漏杀', w: '批量通过 (漏杀率关键)', flds: [['audit_ids', 'array', '批次 ID'], ['final_verdict', 'enum', 'pass'], ['reviewer_id', 'string', '复核人'], ['batch_size', 'int', '批量大小']] },
+  { n: 8, cat: 'ad', ev: 'audit.human_review', kr: 'L2 漏杀', w: '批量拒绝', flds: [['audit_ids', 'array', '批次 ID'], ['final_verdict', 'enum', 'reject'], ['reject_reason', 'string', '拒绝原因']] },
+  { n: 9, cat: 'click', ev: 'feature.click', nm: 'material.preview', kr: 'L2', w: '单条预览素材', flds: [['name', 'string', 'material.preview'], ['material_id', 'uuid', '素材 ID']] },
+  { n: 10, cat: 'ad', ev: 'audit.human_review', kr: 'L2 漏杀', w: '单条通过', flds: [['audit_id', 'uuid', '审核 ID'], ['final_verdict', 'enum', 'pass'], ['reviewer_id', 'string', '复核人'], ['ai_correct', 'boolean', '是否翻盘 AI']] },
+  { n: 11, cat: 'ad', ev: 'audit.human_review', kr: 'L2 漏杀', w: '单条拒绝', flds: [['audit_id', 'uuid', '审核 ID'], ['final_verdict', 'enum', 'reject'], ['reject_reason', 'string', '原因标签']] },
+  { n: 12, cat: 'content', ev: 'content.audit_pass', kr: 'L2 Lead Time', w: '级联 触发生命周期事件 · Lead Time 阶段节点', flds: [['content_id', 'uuid', '生命周期 ID'], ['ai_verdict', 'enum', 'pass/uncertain/reject'], ['human_verdict', 'enum', 'ai_trust/override_pass/override_reject']] },
+  { n: 13, cat: 'v2', ev: 'business.action', kr: 'L3 暴露率', w: '★ 级联 · Q3 上线 · 标记"审核 通过"这一业务动作是否有 AI 参与, 服务业务真实暴露率', flds: [['action_type', 'enum', 'audit_pass'], ['action_id', 'uuid', '动作 ID 去重'], ['ai_involved', 'boolean', 'Frank 参与过即 true'], ['ai_adopted', 'boolean', 'human_verdict=ai_trust 即 true'], ['content_id', 'uuid', '内容 ID'], ['stage', 'enum', 'audit']] },
+ ]},
+];
+
+function sampleVal(type) {
+  if (type === 'int') return '42';
+  if (type === 'number') return '0.94';
+  if (type === 'boolean') return 'true';
+  if (type === 'array') return '["tiktok"]';
+  if (type === 'uuid') return '"u_7f2"';
+  if (type === 'enum') return '"pass"';
+  return '"..."';
+}
+
+const chipsEl = document.getElementById('pgChips');
+chipsEl.innerHTML = pages.map((p, i) => `<button class="pg-chip ${i === 0 ? 'on' : ''}" data-p="${i}">${p.name}<span class="cnt">${p.points.length}</span></button>`).join('');
+
+function catLabel(cat) { return { click: 'CLICK', pv: 'PAGE', ag: 'AGENT', ad: 'AUDIT', content: 'CONTENT', v1: '★★ V1', v2: '★ V2' }[cat] || 'EVENT'; }
+
+function krPillFor(kr) {
+  if (!kr) return '';
+  // 解析 KR 前缀, 决定颜色 class
+  const raw = String(kr).trim();
+  const m = raw.match(/^(KR[1-5]|L2|L3)/i);
+  const cls = m ? m[1].toLowerCase() : 'l2';
+  return `<span class="kr-pill ${cls}">${raw}</span>`;
+}
+
+function renderPage(idx) {
+  const p = pages[idx];
+  document.getElementById('pgPath').textContent = p.path;
+  document.getElementById('pgId').textContent = p.id;
+  document.getElementById('pgCount').textContent = p.points.length;
+  document.getElementById('lstHead').textContent = p.points.length + ' 个';
+  document.getElementById('wfHint').textContent = p.id + ' · ' + p.points.length + ' 点';
+  document.getElementById('wfFrame').innerHTML = wfTpls[p.id]();
+  const list = document.getElementById('ptList');
+  list.innerHTML = p.points.map(pt => {
+    const evName = pt.nm ? pt.ev + ' · ' + pt.nm : pt.ev;
+    const example = pt.flds.slice(0, 3).map(f => `  <span class="st">${f[0]}</span>: <span class="${['int', 'number'].includes(f[1]) ? 'nm' : 'st'}">${sampleVal(f[1])}</span>`).join(',\n');
+    return `<div class="pt-card" data-n="${pt.n}">
+      <div class="pt-card-hd">
+        <div class="pt-num-s ${pt.cat}">${pt.n}</div>
+        <div class="pt-info-s">
+          <div class="pt-ev-s">${evName}${krPillFor(pt.kr)}</div>
+          <div class="pt-when-s"><span class="pt-badge-tag ${pt.cat}">${catLabel(pt.cat)}</span><span class="text">${pt.w}</span></div>
+        </div>
+        <span class="pt-chev-s">▼</span>
+      </div>
+      <div class="pt-body-s">
+        <div style="font-size: 10.5px; color: var(--text-3); margin-bottom: 8px; font-family: var(--font-mono);">Schema · 公共字段省略 (event_id / user_id / session_id / ts / platform / <b style="color: var(--success);">project_id</b> / <b style="color: var(--success);">bu_code</b>)</div>
+        ${pt.flds.map(f => `<div class="pt-fld-s"><span class="fn">${f[0]}</span><span class="ft">${f[1]}</span><span class="fd">${f[2]}</span></div>`).join('')}
+        <div class="pt-code-s"><span class="cm">// 前端 SDK 调用</span>
+<span class="kw">track</span>(<span class="st">"${pt.ev}"</span>, {
+${pt.nm ? `  <span class="st">name</span>: <span class="st">"${pt.nm}"</span>,\n` : ''}${example}
+});</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('#wfFrame .pt-dot').forEach(b => {
+    b.addEventListener('click', e => { e.stopPropagation(); togglePoint(parseInt(b.dataset.n)); });
+  });
+  document.querySelectorAll('#ptList .pt-card-hd').forEach(h => {
+    h.addEventListener('click', () => togglePoint(parseInt(h.parentElement.dataset.n)));
+  });
+}
+
+function togglePoint(n) {
+  const card = document.querySelector(`#ptList .pt-card[data-n="${n}"]`);
+  const badge = document.querySelector(`#wfFrame .pt-dot[data-n="${n}"]`);
+  const wasOn = card.classList.contains('on');
+  document.querySelectorAll('#ptList .pt-card.on').forEach(x => x.classList.remove('on'));
+  document.querySelectorAll('#wfFrame .pt-dot.on').forEach(x => x.classList.remove('on'));
+  if (!wasOn) {
+    card.classList.add('on');
+    if (badge) badge.classList.add('on');
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+chipsEl.querySelectorAll('.pg-chip').forEach(c => {
+  c.addEventListener('click', () => {
+    chipsEl.querySelectorAll('.pg-chip').forEach(x => x.classList.remove('on'));
+    c.classList.add('on');
+    renderPage(parseInt(c.dataset.p));
+  });
+});
+
+renderPage(0);
+
+const streamSrc = [
+  { t: 'feature', n: 'feature.click', d: 'name=ai.clone.generate · user_id=u_42 · page=scraper.hub' },
+  { t: 'agent', n: 'agent.invoke', d: 'agent=lucy · invoke_id=iv_7f2 · model=gemini-3-flash' },
+  { t: 'agent', n: 'agent.complete', d: 'invoke_id=iv_7f2 · duration=2140ms · output_id=ot_9c1' },
+  { t: 'token', n: 'token.consume', d: 'model=gemini-3-flash · in=1820 · out=2022 · cost=$0.0011' },
+  { t: 'agent', n: 'agent.output.rate', d: 'output_id=ot_9c1 · rate_type=adopt' },
+  { t: 'content', n: 'content.topic_selected', d: 'content_id=c_128 · source=lucy · topic=欧铁冷知识' },
+  { t: 'feature', n: 'page.view', d: 'page=video.detail · referrer=scraper.hub' },
+  { t: 'audit', n: 'audit.verdict', d: 'audit_id=au_3d4 · verdict=pass · confidence=0.94' },
+  { t: 'agent', n: 'agent.invoke', d: 'agent=tyler · invoke_id=iv_8a3 · trigger=cascade' },
+  { t: 'content', n: 'content.script_ready', d: 'content_id=c_128 · ai_duration=18400ms · human=320000ms' },
+  { t: 'feature', n: 'feature.click', d: 'name=audit.machine.invoke · page=edit.audit' },
+  { t: 'error', n: 'agent.error', d: 'agent=benny · error_type=timeout · invoke_id=iv_9c2' },
+  { t: 'agent', n: 'agent.output.rate', d: 'output_id=ot_3b2 · rate_type=edit_adopt · edit_distance=38' },
+  { t: 'content', n: 'content.audit_pass', d: 'content_id=c_128 · ai_verdict=pass · human_verdict=ai_trust' },
+  { t: 'content', n: 'content.published', d: 'content_id=c_128 · platforms=[tiktok,xhs] · lead_time=37h' },
+];
+
+const typeLabels = {
+  feature: { lbl: 'FEAT', bg: '#E2EEFB', color: '#2E7BD4' },
+  agent: { lbl: 'AGENT', bg: '#EEEDFE', color: '#4E3DE4' },
+  content: { lbl: 'FLOW', bg: '#FBEAF0', color: '#D4537E' },
+  token: { lbl: 'TOKEN', bg: '#E1F5EF', color: '#0F9E7A' },
+  audit: { lbl: 'AUDIT', bg: '#FBEEDA', color: '#EA9E17' },
+  error: { lbl: 'ERROR', bg: '#FCEAEA', color: '#E5484D' },
+};
+
+function fmtTs() {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}.${String(d.getMilliseconds()).padStart(3,'0').slice(0,3)}`;
+}
+
+const streamList = document.getElementById('streamList');
+let streamCount = 0;
+function pushEvent() {
+  const e = streamSrc[Math.floor(Math.random() * streamSrc.length)];
+  const t = typeLabels[e.t];
+  const row = document.createElement('div');
+  row.className = `stream-row ${e.t}`;
+  row.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span class="stream-ev-type" style="background:${t.bg};color:${t.color}">${t.lbl}</span>
+      <span class="stream-ev-name">${e.n}</span>
+    </div>
+    <span></span>
+    <span class="stream-ev-desc">${e.d}</span>
+    <span class="stream-ev-ts">${fmtTs()}</span>
+  `;
+  streamList.insertBefore(row, streamList.firstChild);
+  while (streamList.children.length > 15) streamList.removeChild(streamList.lastChild);
+  streamCount++;
+  document.getElementById('streamMeta').textContent = `已接收 ${streamCount.toLocaleString()} 事件 · Supabase Realtime · 订阅 28 事件`;
+}
+for (let i = 0; i < 8; i++) pushEvent();
+setInterval(pushEvent, 1800);
+setInterval(() => { document.getElementById('qpsNum').textContent = Math.round(20 + Math.random() * 14); }, 2500);
+
+if (window.Chart) {
+  const quarters = ['现状', 'Q2 末', 'Q3 末', 'Q4 末', 'Vision'];
+  new Chart(document.getElementById('ultimateChart'), {
+    type: 'line',
+    data: {
+      labels: quarters,
+      datasets: [
+        { label: 'AI 渗透率 (%)', data: [12, 42, 55, 72, 90], borderColor: '#0FA871', backgroundColor: 'rgba(15,168,113,0.1)', fill: true, tension: 0.35, borderWidth: 2.2, pointRadius: 5, pointHoverRadius: 7, pointBackgroundColor: '#fff', pointBorderColor: '#0FA871', pointBorderWidth: 2 },
+        { label: 'AI 节省 (千 h, 右轴)', data: [1, 28, 140, 280, 600], borderColor: '#D4537E', backgroundColor: 'rgba(212,83,126,0.06)', tension: 0.35, borderWidth: 2.2, pointRadius: 5, pointHoverRadius: 7, pointBackgroundColor: '#fff', pointBorderColor: '#D4537E', pointBorderWidth: 2, borderDash: [5, 3], yAxisID: 'y1' },
+        { label: '自动化覆盖率 (%)', data: [5, 33, 45, 65, 80], borderColor: '#2E7BD4', backgroundColor: 'rgba(46,123,212,0.06)', tension: 0.35, borderWidth: 2.2, pointRadius: 5, pointHoverRadius: 7, pointBackgroundColor: '#fff', pointBorderColor: '#2E7BD4', pointBorderWidth: 2 },
+        { label: '业务暴露率 (%)', data: [8, 54, 65, 75, 85], borderColor: '#EA9E17', backgroundColor: 'rgba(234,158,23,0.06)', tension: 0.35, borderWidth: 2.2, pointRadius: 5, pointHoverRadius: 7, pointBackgroundColor: '#fff', pointBorderColor: '#EA9E17', pointBorderWidth: 2, borderDash: [2, 2] },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom', align: 'start', labels: { boxWidth: 10, boxHeight: 10, padding: 14, font: { size: 11, family: 'DM Sans' }, usePointStyle: true, pointStyle: 'rectRounded' } },
+        tooltip: { backgroundColor: '#1E1B2E', titleFont: { size: 11 }, bodyFont: { size: 11 }, padding: 12, cornerRadius: 8 }
+      },
+      scales: {
+        y: { position: 'left', beginAtZero: true, max: 100, ticks: { font: { size: 10 }, color: '#8E8AA5', callback: v => v + '%' }, grid: { color: '#ECEAF3' } },
+        y1: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { font: { size: 10 }, color: '#8E8AA5', callback: v => v + 'k' } },
+        x: { ticks: { font: { size: 11, weight: 500 }, color: '#5B5775' }, grid: { display: false } }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('moduleDonut'), {
+    type: 'doughnut',
+    data: {
+      labels: ['内容创作', '智能剪辑', '发布管理', '数据洞察', '管理员'],
+      datasets: [{ data: [58, 22, 10, 7, 3], backgroundColor: ['#6D5EF8','#0FA871','#D4537E','#EA9E17','#8E8AA5'], borderWidth: 2, borderColor: '#fff', hoverOffset: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'right', align: 'center', labels: { boxWidth: 10, boxHeight: 10, padding: 12, font: { size: 11, family: 'DM Sans' }, usePointStyle: true, pointStyle: 'rectRounded' } },
+        tooltip: { backgroundColor: '#1E1B2E', padding: 10, cornerRadius: 8, callbacks: { label: c => `${c.label}: ${c.parsed}%` } }
+      },
+      cutout: '62%'
+    }
+  });
+
+  new Chart(document.getElementById('quadrant'), {
+    type: 'scatter',
+    data: {
+      datasets: [{
+        label: '功能',
+        data: [
+          { x: 96, y: 9, l: '一键爬取' }, { x: 82, y: 7, l: 'AI 仿写' }, { x: 74, y: 5, l: '选题分析' },
+          { x: 68, y: 3, l: '视频详情' }, { x: 55, y: 2, l: '收藏下载' }, { x: 48, y: 4, l: '素材人审' },
+          { x: 42, y: 8, l: '机审' }, { x: 34, y: 1.5, l: '效果看板' }, { x: 28, y: 6, l: '竞品监控' },
+          { x: 22, y: 1.2, l: '素材搜索' }, { x: 18, y: 0.8, l: '归因报告' }
+        ],
+        backgroundColor: '#6D5EF8',
+        borderColor: '#fff',
+        borderWidth: 1.5,
+        pointRadius: 7, pointHoverRadius: 10
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      layout: { padding: 12 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1E1B2E', padding: 10, cornerRadius: 8,
+          callbacks: { title: () => '', label: c => `${c.raw.l}  ·  渗透 ${c.raw.x}%  ·  ${c.raw.y} 次/周` }
+        }
+      },
+      scales: {
+        x: { title: { display: true, text: '渗透率 (%)', font: { size: 10 }, color: '#8E8AA5' }, min: 0, max: 100, ticks: { font: { size: 10 }, color: '#8E8AA5' }, grid: { color: '#ECEAF3' } },
+        y: { title: { display: true, text: '人均频次 (次/周)', font: { size: 10 }, color: '#8E8AA5' }, min: 0, max: 10, ticks: { font: { size: 10 }, color: '#8E8AA5' }, grid: { color: '#ECEAF3' } }
+      }
+    }
+  });
+}
+
+/* ============ 双轨对照 tab ============ */
+const resultMetrics = [
+  { n: 'AI 节省工时 (季度)', v: '2.8 万 h', pill: '+166%' },
+  { n: 'AI 创造价值 (季度)', v: '¥ 336 万', pill: '+198%' },
+  { n: 'AI 渗透率', v: '42%', pill: '+30pp' },
+  { n: '自动化链路覆盖率', v: '33%', pill: '+28pp' },
+  { n: '业务真实暴露率', v: '54%', pill: '+46pp' },
+  { n: 'AIGC 整体采纳率', v: '62%', pill: '+14pp' },
+];
+const processMetrics = [
+  { n: '单任务节省分钟数', v: '38.2 min', pill: '加权' },
+  { n: 'Adopt → 实际使用率', v: '74%', pill: '抽样' },
+  { n: 'Agent P95 延迟', v: '3.1 s', pill: '实时' },
+  { n: '多轮对话完成率', v: '81%', pill: '日' },
+  { n: '幻觉率', v: '4.2%', pill: '日' },
+  { n: '转人工率', v: '8.7%', pill: '日' },
+];
+const pairs = [
+  ['用户规模', 'TripFlow 覆盖 152 人', 'WAU 116 人 (76%)'],
+  ['使用深度', '日均 Token 消耗 2 亿', '人均消息数 28.4 条/日'],
+  ['AI 价值', '本季度 AI 节省 2.8 万 h', '单任务节省 38.2 min · 有基线对照'],
+  ['AI 质量', 'AIGC 采纳率 62%', '幻觉率 4.2% · 转人工率 8.7%'],
+  ['Agent 健康', 'Agent 整体成功率 99.1%', 'P95 延迟 3.1s · 超时率 0.4%'],
+  ['合规', '审核 PASS 率 94%', '漏杀率 0.68% (必须 <1%)'],
+  ['业务闭环', 'AI 自动化链路覆盖率 33%', 'content_id 端到端追溯率 87%'],
+  ['单位经济', '单条 ROI 4.2x', '单条 AI 调用成本 ¥ 1.4 · 人工对照 ¥ 5.9'],
+  ['生命周期', '一次通过率 78%', '跨阶段回退率 12% · Lead Time 38h'],
+  ['学习能力', '方法论进化 47 条/月', '失败案例入库率 82%'],
+  ['爆款命中', '本季 AI 预测命中 12 个爆款', '爆款归因完整率 64%'],
+  ['辐射力', '被其他 BU 复用 2 次', 'Skill 被下载 18 次'],
+];
+const ultimateLinks = [
+  {
+    name: 'AI 渗透率',
+    color: 'var(--success)',
+    formula: '触发 AI 且 rate=adopt 的员工数 / BG 总员工数',
+    events: ['employee.first_adopt'],
+    sql: 'SELECT COUNT(DISTINCT user_id) FROM employee_first_adopt WHERE quarter = :quarter',
+    safeguard: '人均 adopt 次数, 若 >10 说明是被动激活',
+    value: '42%',
+  },
+  {
+    name: 'AI 节省时间',
+    color: 'var(--pink)',
+    formula: 'Σ (baseline − ai) × 任务 adopt 次数',
+    events: ['task.baseline_record', 'task.ai_assisted'],
+    sql: 'JOIN baseline ON task_type 后加权求和',
+    safeguard: '基线每季度重测 · 节省分钟数分布应呈正态',
+    value: '2.8 万 h',
+  },
+  {
+    name: 'AI 自动化链路覆盖率',
+    color: 'var(--info)',
+    formula: '无人工介入完成的阶段数 / 6',
+    events: ['stage.auto_completed'],
+    sql: 'COUNT(DISTINCT stage) WHERE human_intervention_count < 2',
+    safeguard: '每阶段人工介入次数必须稳定下降',
+    value: '33%',
+  },
+  {
+    name: '业务对 AI 真实暴露率',
+    color: 'var(--warn)',
+    formula: '有 AI 交互的业务动作 / 业务总动作',
+    events: ['business.action'],
+    sql: 'SUM(ai_involved=true) / COUNT(action_id)',
+    safeguard: 'ai_adopted / ai_involved 比值过低说明假暴露',
+    value: '54%',
+  },
+];
+
+function renderDualTrack() {
+  const rr = document.getElementById('resultRail');
+  if (!rr) return;
+  rr.innerHTML = resultMetrics.map((m, i) => `
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; ${i < resultMetrics.length - 1 ? 'border-bottom: 1px solid var(--line);' : ''}">
+      <div style="font-size: 13px; color: var(--text-2);">${m.n}</div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-weight: 600; color: var(--success); font-size: 14px;" class="tabular">${m.v}</span>
+        <span style="font-size: 10.5px; padding: 2px 8px; background: var(--success-bg); color: var(--success); border-radius: 10px; font-family: var(--font-mono); font-weight: 500;">${m.pill}</span>
+      </div>
+    </div>
+  `).join('');
+
+  const pr = document.getElementById('processRail');
+  pr.innerHTML = processMetrics.map((m, i) => `
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; ${i < processMetrics.length - 1 ? 'border-bottom: 1px solid var(--line);' : ''}">
+      <div style="font-size: 13px; color: var(--text-2);">${m.n}</div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-weight: 600; color: var(--brand); font-size: 14px;" class="tabular">${m.v}</span>
+        <span style="font-size: 10.5px; padding: 2px 8px; background: var(--bg-hl); color: var(--brand); border-radius: 10px; font-family: var(--font-mono); font-weight: 500;">${m.pill}</span>
+      </div>
+    </div>
+  `).join('');
+
+  const pl = document.getElementById('pairList');
+  pl.innerHTML = `
+    <div style="display: grid; grid-template-columns: 1.2fr 2fr 2fr; gap: 0; font-size: 11px; font-weight: 600; color: var(--text-3); padding: 10px 14px; background: var(--bg-sub); border-bottom: 1px solid var(--line); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.04em;">
+      <div>目标</div>
+      <div style="color: var(--success);">结果轨 (对老板)</div>
+      <div style="color: var(--brand);">过程轨 (对懂行人)</div>
+    </div>
+    ${pairs.map((p, i) => `
+      <div style="display: grid; grid-template-columns: 1.2fr 2fr 2fr; gap: 0; padding: 12px 14px; ${i < pairs.length - 1 ? 'border-bottom: 1px solid var(--line);' : ''} ${i % 2 ? 'background: var(--bg-sub);' : ''}">
+        <div style="font-weight: 600; font-size: 12px; color: var(--text);">${p[0]}</div>
+        <div style="font-size: 12px; color: var(--success); padding-right: 10px;">${p[1]}</div>
+        <div style="font-size: 12px; color: var(--brand);">${p[2]}</div>
+      </div>
+    `).join('')}
+  `;
+
+  const ul = document.getElementById('ultimateLinks');
+  ul.innerHTML = ultimateLinks.map(m => `
+    <div style="padding: 16px 18px; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center;">
+      <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+        <div style="padding: 3px 10px; background: ${m.color}; color: #fff; border-radius: 10px; font-size: 11px; font-weight: 600;">${m.name}</div>
+        <div style="font-weight: 700; font-size: 22px; color: var(--text);" class="tabular">${m.value}</div>
+      </div>
+      <div style="min-width: 0;">
+        <div style="font-size: 11.5px; color: var(--text-3); margin-bottom: 4px; font-family: var(--font-mono);">公式</div>
+        <div style="font-size: 12.5px; color: var(--text); font-family: var(--font-mono); margin-bottom: 10px;">${m.formula}</div>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 200px;">
+            <div style="font-size: 10.5px; color: var(--text-3); margin-bottom: 3px; font-family: var(--font-mono); text-transform: uppercase;">依赖埋点</div>
+            <div style="display: flex; gap: 4px; flex-wrap: wrap;">${m.events.map(e => `<code style="font-size: 10.5px; padding: 2px 7px; background: var(--bg-hl); color: var(--brand-ink); border-radius: 4px; font-family: var(--font-mono);">${e}</code>`).join('')}</div>
+          </div>
+          <div style="flex: 2; min-width: 260px;">
+            <div style="font-size: 10.5px; color: var(--text-3); margin-bottom: 3px; font-family: var(--font-mono); text-transform: uppercase;">SQL 示例</div>
+            <div style="font-size: 10.5px; color: var(--text-2); font-family: var(--font-mono); line-height: 1.5;">${m.sql}</div>
+          </div>
+        </div>
+        <div style="margin-top: 10px; padding: 8px 10px; background: var(--danger-bg); border-left: 3px solid var(--danger); border-radius: 0 4px 4px 0; font-size: 11px; color: var(--danger);">
+          <b>防作弊对照 · </b>${m.safeguard}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Chart: 双轨趋势
+  const weeks = Array.from({length: 12}, (_, i) => 'W' + (i+1));
+  if (window.Chart && !window._dualTrendRendered) {
+    new Chart(document.getElementById('dualTrendChart'), {
+      type: 'line',
+      data: {
+        labels: weeks,
+        datasets: [
+          { label: '结果轨', data: [32, 36, 38, 43, 46, 48, 51, 53, 57, 61, 65, 68], borderColor: '#0FA871', backgroundColor: 'rgba(15, 168, 113, 0.12)', tension: 0.3, borderWidth: 2.2, pointRadius: 3, fill: true },
+          { label: '过程轨', data: [50, 54, 55, 59, 59, 63, 65, 64, 67, 71, 74, 77], borderColor: '#6D5EF8', backgroundColor: 'rgba(109, 94, 248, 0.12)', tension: 0.3, borderWidth: 2.2, pointRadius: 3, fill: true },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 10 } } },
+        scales: { y: { beginAtZero: true, grid: { color: '#ECEAF3' }, ticks: { font: { size: 10 } } }, x: { grid: { display: false }, ticks: { font: { size: 10 } } } }
+      }
+    });
+    // 比值图
+    new Chart(document.getElementById('ratioChart'), {
+      type: 'line',
+      data: {
+        labels: weeks,
+        datasets: [{
+          label: '结果 / 过程', data: [0.64, 0.67, 0.69, 0.73, 0.78, 0.76, 0.78, 0.83, 0.85, 0.86, 0.88, 0.88],
+          borderColor: '#6D5EF8', backgroundColor: 'rgba(109, 94, 248, 0.1)', tension: 0.3, borderWidth: 2.2, pointRadius: 3, fill: true
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false },
+          annotation: undefined,
+        },
+        scales: {
+          y: { min: 0.4, max: 1.2, grid: { color: '#ECEAF3' }, ticks: { font: { size: 10 } } },
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+        }
+      }
+    });
+    window._dualTrendRendered = true;
+  }
+}
+
+/* ============ AARRR tab ============ */
+const funnelStages = [
+  { code: 'A1', n: 'Acquisition · 触达', d: '被入口触达 · 曝光 / 活动 / 口碑', num: 152, label: '152 人', color: '#2E7BD4', w: 100 },
+  { code: 'A2', n: 'Activation · 激活', d: '首次产出 ≥1 条 rate=adopt 的 AI 输出', num: 134, label: '134 / 88%', color: '#6D5EF8', w: 88 },
+  { code: 'R1', n: 'Retention · 留存', d: '成为习惯 · 每周 ≥3 次有效使用', num: 116, label: '116 / 76%', color: '#A78BFA', w: 76 },
+  { code: 'R2', n: 'Revenue · 价值', d: '创造可审计价值 · 节省时长 + KPI 归因', num: 336, label: '¥ 336 万', color: '#D4537E', w: 62 },
+  { code: 'R3', n: 'Referral · 推荐', d: '被其他 BG 复用 · 跨团队 NPS', num: 2, label: '2 BU', color: '#EA9E17', w: 48 },
+];
+
+const activationSteps = [
+  { step: 1, name: '注册成功', rate: '100%', desc: '基线 · SSO 一键登录' },
+  { step: 2, name: '首次发起 AI 调用', rate: '85%', desc: '-15% · 首页引导场景入口' },
+  { step: 3, name: '完整完成一次对话', rate: '68%', desc: '-17% · Agent 延迟要低' },
+  { step: 4, name: '首次产出被 adopt', rate: '44%', desc: '-24% · 初始 Demo 必须成功' },
+];
+
+function renderAARRR() {
+  const fb = document.getElementById('funnelBody');
+  if (!fb) return;
+  fb.innerHTML = funnelStages.map((s, i) => `
+    <div style="display: flex; align-items: center; gap: 14px; padding: 12px 18px; margin-bottom: 6px; border-radius: 10px; background: linear-gradient(90deg, ${s.color} 0%, ${s.color}aa 100%); width: ${s.w}%; transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateX(4px)'" onmouseout="this.style.transform='translateX(0)'">
+      <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 12px; font-family: var(--font-mono); flex-shrink: 0;">${s.code}</div>
+      <div style="flex: 1; min-width: 0;">
+        <div style="color: #fff; font-weight: 600; font-size: 13px;">${s.n}</div>
+        <div style="color: rgba(255,255,255,0.82); font-size: 11.5px; margin-top: 2px;">${s.d}</div>
+      </div>
+      <div style="font-family: var(--font-mono); font-size: 12px; padding: 6px 12px; background: rgba(0,0,0,0.2); color: #fff; border-radius: 8px; flex-shrink: 0; font-weight: 600;">${s.label}</div>
+    </div>
+  `).join('');
+
+  const ast = document.getElementById('activationSteps');
+  ast.innerHTML = activationSteps.map((s, i) => `
+    <div style="padding: 14px 0; display: grid; grid-template-columns: 28px 1fr auto; gap: 14px; align-items: center; ${i < activationSteps.length - 1 ? 'border-bottom: 1px solid var(--line);' : ''}">
+      <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--brand); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 11px;">${s.step}</div>
+      <div>
+        <div style="font-weight: 600; font-size: 13px;">${s.name}</div>
+        <div style="font-size: 11.5px; color: var(--text-3); margin-top: 2px;">${s.desc}</div>
+      </div>
+      <div style="font-family: var(--font-mono); font-weight: 700; color: var(--brand); font-size: 14px;" class="tabular">${s.rate}</div>
+    </div>
+  `).join('');
+
+  if (window.Chart && !window._retentionRendered) {
+    new Chart(document.getElementById('retentionChart'), {
+      type: 'line',
+      data: {
+        labels: ['D0', 'D1', 'D3', 'D7', 'D14', 'D21', 'D30'],
+        datasets: [{
+          label: '留存率 (%)', data: [100, 56, 45, 38, 30, 25, 22],
+          borderColor: '#6D5EF8', backgroundColor: 'rgba(109, 94, 248, 0.12)', tension: 0.35, borderWidth: 2.2, pointRadius: 4, pointBackgroundColor: '#6D5EF8', fill: true
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y + '%' } } },
+        scales: {
+          y: { beginAtZero: true, max: 100, grid: { color: '#ECEAF3' }, ticks: { font: { size: 10 }, callback: v => v + '%' } },
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+        }
+      }
+    });
+    window._retentionRendered = true;
+  }
+}
+
+// 初始渲染
+renderDualTrack();
+renderAARRR();
+
+// ============ TripFlow 6 阶段自动化进度 ============
+const stages = [
+  { num: 1, name: '爆款抓取', status: 'done',     label: '已自主', owner: 'Lucy' },
+  { num: 2, name: '素材收集', status: 'progress', label: '进行中', owner: 'Sora+CLIP' },
+  { num: 3, name: '脚本创作', status: 'progress', label: '进行中', owner: '6 Agent' },
+  { num: 4, name: '合规审核', status: 'done',     label: '已自主', owner: 'Frank' },
+  { num: 5, name: '剪辑成品', status: 'pending',  label: 'Q4',    owner: '规划中' },
+  { num: 6, name: '发布回流', status: 'pending',  label: 'Q4',    owner: '规划中' },
+];
+const stageMap = document.getElementById('stageMap');
+if (stageMap) {
+  stageMap.innerHTML = stages.map(s => `
+    <div class="stage-node ${s.status}">
+      <div class="stage-node-num">${s.num}</div>
+      <div class="stage-node-name">${s.name}</div>
+      <div class="stage-node-status">${s.label}</div>
+      <div style="font-size: 10px; color: var(--text-3); margin-top: 4px; font-family: var(--font-mono);">${s.owner}</div>
+    </div>
+  `).join('');
+}
+
+// Sidebar pin 交互
+document.getElementById('sidebarPin')?.addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('pinned');
+});
+</script>
+</body>
+</html>
